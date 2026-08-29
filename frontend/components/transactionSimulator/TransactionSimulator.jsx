@@ -29,7 +29,7 @@ import {
 import Callout from '@leafygreen-ui/callout';
 import Popover from '@leafygreen-ui/popover';
 import Code from '@leafygreen-ui/code';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import ExpandableCard from '@leafygreen-ui/expandable-card';
 import VectorSearchCalculationBreakdown from '../vectorSearch/VectorSearchCalculationBreakdown';

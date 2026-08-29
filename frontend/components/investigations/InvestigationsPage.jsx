@@ -6,7 +6,7 @@ import Card from '@leafygreen-ui/card';
 import Button from '@leafygreen-ui/button';
 import Badge from '@leafygreen-ui/badge';
 import Icon from '@leafygreen-ui/icon';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Spinner } from '@leafygreen-ui/loading-indicator';
 

@@ -12,7 +12,7 @@ import { Table, TableBody, TableHead, HeaderRow, HeaderCell, Row, Cell } from '@
 import Icon from '@leafygreen-ui/icon';
 import Badge from '@leafygreen-ui/badge';
 import { Spinner } from '@leafygreen-ui/loading-indicator';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import EntityDetailWrapper from '@/components/entities/EntityDetailWrapper';
 import EntityLink from '@/components/common/EntityLink';

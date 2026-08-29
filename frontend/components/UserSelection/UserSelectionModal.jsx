@@ -7,7 +7,7 @@ import Card from '@leafygreen-ui/card';
 import Button from '@leafygreen-ui/button';
 import Icon from '@leafygreen-ui/icon';
 import { H1, H3, Body, Description } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useUser } from '@/contexts/UserContext';
 import styles from './UserSelectionModal.module.css';

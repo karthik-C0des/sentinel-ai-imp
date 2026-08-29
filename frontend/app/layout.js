@@ -3,8 +3,8 @@ import ClientLayout from '@/components/ClientLayout';
 import { UserProvider } from '@/contexts/UserContext';
 
 export const metadata = {
-  title: 'ThreatSight 360 - Fraud Detection',
-  description: 'Advanced fraud detection for financial transactions',
+  title: 'Sentinel AI',
+  description: 'Autonomous Financial Crime Investigation',
   icons: {
     icon: '/threatsight-logo.svg',
     shortcut: '/threatsight-logo.svg',

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { Body, Subtitle, H3, InlineCode } from '@leafygreen-ui/typography';
 import Card from '@leafygreen-ui/card';
 import Button from '@leafygreen-ui/button';

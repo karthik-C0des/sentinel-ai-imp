@@ -11,7 +11,7 @@ import Banner from '@leafygreen-ui/banner';
 import Badge from '@leafygreen-ui/badge';
 import Callout from '@leafygreen-ui/callout';
 import { Spinner } from '@leafygreen-ui/loading-indicator';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 // Enhanced Components

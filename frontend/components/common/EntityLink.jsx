@@ -9,7 +9,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Body } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 
 function EntityLink({ 
   entityId, 

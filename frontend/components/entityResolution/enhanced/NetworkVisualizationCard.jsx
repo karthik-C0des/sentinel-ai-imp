@@ -7,7 +7,7 @@ import { H3, Body } from '@leafygreen-ui/typography';
 import Icon from '@leafygreen-ui/icon';
 import Badge from '@leafygreen-ui/badge';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 // Import the enhanced Cytoscape component

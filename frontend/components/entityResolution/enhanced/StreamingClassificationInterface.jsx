@@ -21,7 +21,7 @@ import Icon from '@leafygreen-ui/icon';
 import { Spinner } from '@leafygreen-ui/loading-indicator';
 import Banner from '@leafygreen-ui/banner';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Table, TableBody, TableHead, HeaderRow, HeaderCell, Row, Cell } from '@leafygreen-ui/table';
 import Callout from '@leafygreen-ui/callout';

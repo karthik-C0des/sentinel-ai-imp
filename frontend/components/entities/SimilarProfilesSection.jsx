@@ -14,7 +14,7 @@ import Icon from '@leafygreen-ui/icon';
 import Modal from '@leafygreen-ui/modal';
 import Code from '@leafygreen-ui/code';
 import { RadioGroup, Radio } from '@leafygreen-ui/radio-group';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { amlAPI, useAMLAPIError, amlUtils } from '@/lib/aml-api';
 import EntityLink from '@/components/common/EntityLink';

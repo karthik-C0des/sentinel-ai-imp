@@ -3,7 +3,7 @@
 import React from 'react';
 import { H2, Body } from '@leafygreen-ui/typography';
 import { spacing } from '@leafygreen-ui/tokens';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import Card from '@leafygreen-ui/card';
 
 const DemoInstructions = ({ 

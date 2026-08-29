@@ -12,7 +12,7 @@ import Card from '@leafygreen-ui/card';
 import { Body, H3, Label } from '@leafygreen-ui/typography';
 import Icon from '@leafygreen-ui/icon';
 import Badge from '@leafygreen-ui/badge';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 const RiskPropagationPanel = ({ data, centerEntityId }) => {

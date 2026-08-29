@@ -6,7 +6,7 @@ import Badge from '@leafygreen-ui/badge';
 import ExpandableCard from '@leafygreen-ui/expandable-card';
 import Code from '@leafygreen-ui/code';
 import { Body, Subtitle, H3 } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { fetchInvestigationAnalytics } from '@/lib/agent-api';

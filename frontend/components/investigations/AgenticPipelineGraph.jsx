@@ -13,7 +13,7 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { uiTokens, GLOBAL_KEYFRAMES } from './investigationTokens';
 
 const FONT = uiTokens.font;

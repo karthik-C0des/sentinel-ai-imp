@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import Button from '@leafygreen-ui/button';
 import Badge from '@leafygreen-ui/badge';
 import { Body, Subtitle } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { useStickToBottom } from 'use-stick-to-bottom';
 

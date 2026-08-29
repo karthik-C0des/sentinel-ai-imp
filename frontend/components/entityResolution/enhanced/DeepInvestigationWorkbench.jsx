@@ -10,7 +10,7 @@ import Badge from '@leafygreen-ui/badge';
 import Banner from '@leafygreen-ui/banner';
 import Code from '@leafygreen-ui/code';
 import ExpandableCard from '@leafygreen-ui/expandable-card';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

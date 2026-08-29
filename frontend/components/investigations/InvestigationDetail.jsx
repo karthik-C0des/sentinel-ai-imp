@@ -7,7 +7,7 @@ import { Body, Subtitle, H3 } from '@leafygreen-ui/typography';
 import ExpandableCard from '@leafygreen-ui/expandable-card';
 import Code from '@leafygreen-ui/code';
 import Icon from '@leafygreen-ui/icon';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { uiTokens } from './investigationTokens';
 

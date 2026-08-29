@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import IconButton from '@leafygreen-ui/icon-button';
 import Icon from '@leafygreen-ui/icon';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 
 import UserProfile from '@/components/UserProfile/UserProfile';
 import styles from "./Header.module.css";

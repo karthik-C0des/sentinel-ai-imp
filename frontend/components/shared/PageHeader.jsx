@@ -6,7 +6,7 @@ import {
   Body,
 } from '@leafygreen-ui/typography';
 import { spacing } from '@leafygreen-ui/tokens';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import Card from '@leafygreen-ui/card';
 import Badge from '@leafygreen-ui/badge';
 import Icon from '@leafygreen-ui/icon';

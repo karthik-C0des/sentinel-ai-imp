@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Body } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import Icon from '@leafygreen-ui/icon';
 import { useUser } from '@/contexts/UserContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';

@@ -7,7 +7,7 @@ import { H3, Body } from '@leafygreen-ui/typography';
 import Icon from '@leafygreen-ui/icon';
 import { Table, TableBody, TableHead, HeaderRow, HeaderCell, Row, Cell } from '@leafygreen-ui/table';
 import Banner from '@leafygreen-ui/banner';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import StatisticsCard from './StatisticsCard';
 

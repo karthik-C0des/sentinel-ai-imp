@@ -7,7 +7,7 @@ import TextInput from '@leafygreen-ui/text-input';
 import Badge from '@leafygreen-ui/badge';
 import Icon from '@leafygreen-ui/icon';
 import { Body, Subtitle, H3 } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Spinner } from '@leafygreen-ui/loading-indicator';

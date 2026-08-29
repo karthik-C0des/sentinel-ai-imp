@@ -7,7 +7,7 @@ import { H2, H3, Body, Label } from '@leafygreen-ui/typography';
 import Icon from '@leafygreen-ui/icon';
 import Badge from '@leafygreen-ui/badge';
 import Banner from '@leafygreen-ui/banner';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 /**

@@ -17,7 +17,7 @@ import {
   ParagraphSkeleton
 } from '@leafygreen-ui/skeleton-loader';
 import Callout from '@leafygreen-ui/callout';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { amlAPI, useAMLAPIError, amlUtils } from '@/lib/aml-api';
 import EnhancedSearchBar from './EnhancedSearchBar';

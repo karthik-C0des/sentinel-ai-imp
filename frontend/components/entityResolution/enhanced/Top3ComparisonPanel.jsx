@@ -6,7 +6,7 @@ import { H2, H3, Body, Label } from '@leafygreen-ui/typography';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import Badge from '@leafygreen-ui/badge';
 import Icon from '@leafygreen-ui/icon';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 // Import existing components for reuse

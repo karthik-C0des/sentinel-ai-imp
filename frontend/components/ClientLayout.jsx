@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Card from '@leafygreen-ui/card';
 import { MongoDBLogoMark } from '@leafygreen-ui/logo';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { H1, Overline, Body } from '@leafygreen-ui/typography';
 import Icon from '@leafygreen-ui/icon';
@@ -81,10 +81,10 @@ export default function ClientLayout({ children, bianModelUrl }) {
     <LeafyGreenProvider>
       <header
         style={{
-          backgroundColor: palette.green.dark2,
+          backgroundColor: palette.blue.dark2,
           color: palette.gray.light3,
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderBottom: `1px solid ${palette.green.dark3}`,
+          borderBottom: `1px solid ${palette.blue.dark3}`,
           padding: 0,
           position: 'sticky',
           top: 0,
@@ -117,7 +117,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
                 border: '1px solid rgba(255, 255, 255, 0.3)',
               }}
             >
-              <MongoDBLogoMark height={40} aria-label="ThreatSight360 Logo" />
+              <Icon glyph="Security" size={40} fill={palette.green.base} aria-label="Sentinel AI Logo" />
             </div>
             <div>
               <H1
@@ -131,7 +131,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
                   fontWeight: 700,
                 }}
               >
-                ThreatSight360
+                Sentinel AI
               </H1>
               <Overline
                 style={{
@@ -141,7 +141,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
                   fontWeight: 400,
                 }}
               >
-                Fraud Detection System
+                Autonomous Financial Crime Investigation
               </Overline>
             </div>
           </div>

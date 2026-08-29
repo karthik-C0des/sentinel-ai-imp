@@ -15,7 +15,7 @@ import Icon from '@leafygreen-ui/icon';
 import Badge from '@leafygreen-ui/badge';
 import Button from '@leafygreen-ui/button';
 import Code from '@leafygreen-ui/code';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 const AdvancedInvestigationPanel = ({ results, centerEntityId, RiskPropagationComponent }) => {

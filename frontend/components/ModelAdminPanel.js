@@ -20,7 +20,7 @@ import Banner from '@leafygreen-ui/banner';
 import Callout from '@leafygreen-ui/callout';
 import Code from '@leafygreen-ui/code';
 import { spacing } from '@leafygreen-ui/tokens';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
 

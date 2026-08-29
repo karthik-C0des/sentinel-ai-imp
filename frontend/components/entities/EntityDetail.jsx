@@ -20,7 +20,7 @@ import {
 import Callout from '@leafygreen-ui/callout';
 import ExpandableCard from '@leafygreen-ui/expandable-card';
 import Code from '@leafygreen-ui/code';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { amlAPI, useAMLAPIError, amlUtils } from '@/lib/aml-api';
 import SimilarProfilesSection from './SimilarProfilesSection';

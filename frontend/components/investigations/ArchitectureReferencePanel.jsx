@@ -5,7 +5,7 @@ import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import Icon from '@leafygreen-ui/icon';
 import Code from '@leafygreen-ui/code';
 import { Body } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { uiTokens } from './investigationTokens';
 

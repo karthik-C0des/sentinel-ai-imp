@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Icon from '@leafygreen-ui/icon';
 import { Body } from '@leafygreen-ui/typography';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { connectAlertStream } from '@/lib/agent-api';

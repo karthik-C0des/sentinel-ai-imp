@@ -1,4 +1,4 @@
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@/lib/theme';
 
 export const uiTokens = {
   railBg: '#FAFBFA',
