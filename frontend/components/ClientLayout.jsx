@@ -81,14 +81,16 @@ export default function ClientLayout({ children, bianModelUrl }) {
     <LeafyGreenProvider>
       <header
         style={{
-          backgroundColor: palette.blue.dark2,
+          backgroundColor: 'rgba(16, 28, 58, 0.85)',
           color: palette.gray.light3,
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderBottom: `1px solid ${palette.blue.dark3}`,
+          borderBottom: `1px solid rgba(36, 59, 92, 0.5)`,
           padding: 0,
           position: 'sticky',
           top: 0,
           zIndex: 100,
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
         }}
       >
         <div
@@ -189,7 +191,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
                       onMouseLeave={(e) => handleLinkHover(e, link.href, false)}
                     >
                       <Icon glyph={link.icon} fill={palette.gray.light3} size={16} />
-                      <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500 }}>{link.label}</Body>
+                      <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500, color: 'inherit' }}>{link.label}</Body>
                     </Link>
                   </li>
                 ))}
@@ -208,7 +210,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
                     title="BIAN Data Model"
                   >
                     <Icon glyph="Read" fill={palette.gray.light3} size={16} />
-                    <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500 }}>Data Model</Body>
+                    <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500, color: 'inherit' }}>Data Model</Body>
                   </a>
                 </li>
               </ul>

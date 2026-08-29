@@ -86,22 +86,24 @@ export default function HomepageClient() {
         textAlign: 'center', 
         marginBottom: spacing[5], 
         padding: spacing[5],
-        background: `linear-gradient(135deg, ${palette.green.light3} 0%, ${palette.green.light2} 100%)`,
+        background: `linear-gradient(135deg, rgba(0, 181, 167, 0.15) 0%, rgba(255, 255, 255, 0.6) 100%)`,
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
         borderRadius: '24px',
         boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-        border: `1px solid ${palette.green.light1}`
+        border: `1px solid rgba(0, 181, 167, 0.2)`
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: spacing[3], marginBottom: spacing[2] }}>
-          <MongoDBLogoMark height={56} aria-label="ThreatSight Logo" />
-          <H1 style={{ margin: 0 }}>
-            ThreatSight 360
+          <Icon glyph="Security" size={56} fill={palette.blue.dark2} aria-label="Sentinel AI Logo" />
+          <H1 style={{ margin: 0, color: palette.blue.dark2 }}>
+            Sentinel AI
           </H1>
         </div>
-        <H3 style={{ color: palette.gray.dark1, marginBottom: spacing[4], maxWidth: '800px', margin: '0 auto' }}>
-          Fraud Detection & AML/KYC Compliance (FRAML) Platform
+        <H3 style={{ color: palette.blue.dark1, marginBottom: spacing[4], maxWidth: '800px', margin: '0 auto' }}>
+          Autonomous Financial Crime Investigation
         </H3>
         <Description style={{ color: palette.gray.dark1, marginBottom: spacing[4], maxWidth: '600px', margin: '0 auto' }}>
-          Advanced entity resolution, network analysis, and real-time transaction monitoring powered by MongoDB
+          Advanced entity resolution, network analysis, and real-time transaction monitoring powered by AI
         </Description>
       </Card>
 
@@ -114,7 +116,7 @@ export default function HomepageClient() {
         </Banner>
       )}
 
-      <H2 style={{ marginBottom: spacing[2], textAlign: 'center' }}>Core Capabilities</H2>
+      <H2 style={{ marginBottom: spacing[2], textAlign: 'center', color: palette.blue.dark2 }}>Core Capabilities</H2>
       <Description style={{ textAlign: 'center', marginBottom: spacing[4], color: palette.gray.dark1 }}>
         Each capability is tagged with the persona that owns it. Cards outside your current
         persona are shown for context and unlock when you switch users.
