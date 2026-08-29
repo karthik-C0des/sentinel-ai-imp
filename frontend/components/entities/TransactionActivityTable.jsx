@@ -51,8 +51,8 @@ const TransactionActivityTable = ({ entityId, onError }) => {
     fetchTransactions(page);
   };
 
-  const formatAmount = (amount, currency = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
+  const formatAmount = (amount, currency = 'INR') => {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 2

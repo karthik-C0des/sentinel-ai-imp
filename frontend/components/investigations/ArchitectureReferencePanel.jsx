@@ -106,9 +106,9 @@ const PIPELINE_STAGES = [
     stage: 'Reporting & Review',
     agents: [
       {
-        number: 5, name: 'SAR Author', glyph: 'Edit',
+        number: 5, name: 'STR Author', glyph: 'Edit',
         color: palette.green.base, type: 'Agent', typeBg: palette.green.light3, typeColor: palette.green.dark2,
-        role: 'FinCEN-compliant SAR narrative generation',
+        role: 'FIU-IND-compliant STR narrative generation',
         detail: 'Generates 5Ws narrative grounded in JSON evidence. RAG from compliance_policies. Temperature 0.1.',
         value: 'Produces filing-ready narratives — analyst reviews instead of writes.',
         uses: {
@@ -204,9 +204,9 @@ decision: TriageDecision = result["parsed"]   # fully typed`,
   {
     title: 'RAG & Retrieval',
     features: [
-      { name: 'Atlas Search RAG', desc: 'Retrieves relevant typology patterns and compliance policies for grounded generation', where: 'Case Analyst, SAR Author' },
+      { name: 'Atlas Search RAG', desc: 'Retrieves relevant typology patterns and compliance policies for grounded generation', where: 'Case Analyst, STR Author' },
       { name: 'Typology library', desc: '12 AML crime typologies with red flags and regulatory references', where: 'Case Analyst typology classification' },
-      { name: 'Compliance policies', desc: '6 FinCEN/regulatory policy documents for SAR formatting guidance', where: 'SAR Author narrative generation' },
+      { name: 'Compliance policies', desc: '6 FIU-IND/regulatory policy documents for STR formatting guidance', where: 'STR Author narrative generation' },
     ],
   },
   {
@@ -245,13 +245,13 @@ const HITL_MECHANISMS = [
   { title: 'Durable Interrupt', code: 'interrupt_before=["human_review"]', desc: 'Graph pauses before the human_review node at compile time. Execution halts cleanly — no polling, no timeouts.' },
   { title: 'Checkpoint Persistence', code: 'MongoDBSaver', desc: 'Complete investigation state serialized to MongoDB checkpoints collection. Fully recoverable even if backend crashes mid-pipeline.' },
   { title: 'State Resume', code: 'graph.update_state() → graph.astream()', desc: 'Analyst decision injected into graph state, then pipeline resumes from exact checkpoint with full SSE streaming.' },
-  { title: 'Analyst Decisions', code: 'approve | reject | request_changes', desc: 'Three decision paths: file SAR, close case, or update and re-review. Each path flows through finalize for audit.' },
+  { title: 'Analyst Decisions', code: 'approve | reject | request_changes', desc: 'Three decision paths: file STR, close case, or update and re-review. Each path flows through finalize for audit.' },
   { title: 'Forced Escalation', code: 'MAX_VALIDATION_LOOPS = 2', desc: 'After 2 validation cycles without approval, Compliance QA forces escalation to human review — prevents infinite loops.' },
 ];
 
 const RISK_TIERS = [
   { range: 'Score < 25', label: 'Auto-Close', desc: 'False positives routed directly to finalize. Human-on-the-loop — analyst monitors dashboards.', color: palette.green.dark1, bg: palette.green.light3 },
-  { range: 'Score ≥ 25', label: 'Full HITL', desc: 'Complete investigation with mandatory human review before SAR filing. Analyst sees full evidence + narrative.', color: palette.yellow.dark2, bg: palette.yellow.light3 },
+  { range: 'Score ≥ 25', label: 'Full HITL', desc: 'Complete investigation with mandatory human review before STR filing. Analyst sees full evidence + narrative.', color: palette.yellow.dark2, bg: palette.yellow.light3 },
   { range: 'Validation fails ×2', label: 'Forced Escalation', desc: 'Compliance QA cannot validate — forces human review with escalation flag for senior analyst attention.', color: palette.red.base, bg: palette.red.light3 },
 ];
 
@@ -306,7 +306,7 @@ db.transactionsv2.aggregate([
   {
     name: 'Atlas Search',
     desc: 'Full-text + vector search powering RAG retrieval from typology_library (12 typologies) and compliance_policies (6 policies).',
-    agent: 'Case Analyst, SAR Author',
+    agent: 'Case Analyst, STR Author',
     snippet: {
       language: 'javascript',
       code: `// RAG retrieval: find relevant AML typology patterns
@@ -579,7 +579,7 @@ function AgentPipelineTab({ onNavigate }) {
   return (
     <div style={{ padding: `${spacing[2]}px 0` }}>
       <Body style={{ fontSize: 12, fontFamily: FONT, color: palette.gray.dark1, marginBottom: spacing[2] }}>
-        6 specialized agents orchestrated by LangGraph StateGraph — from alert triage to SAR filing.
+        6 specialized agents orchestrated by LangGraph StateGraph — from alert triage to STR filing.
         Click any chip to jump to the feature or operator.
       </Body>
       {PIPELINE_STAGES.map((stage) => (

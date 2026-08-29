@@ -180,6 +180,7 @@ function AgentNode({ data }) {
     >
       <Handle type="target" position={Position.Top} style={{ opacity: 0 }} />
       <Handle type="target" position={Position.Left} id="left" style={{ opacity: 0 }} />
+      <Handle type="target" position={Position.Right} id="right-target" style={{ opacity: 0 }} />
       <div style={{
         display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 4,
         padding: '4px 12px 2px', background: `${accentColor}0A`,
@@ -595,10 +596,10 @@ const INITIAL_NODES = [
     id: 'narrative', type: 'agent',
     position: { x: CX - 30, y: 670 },
     data: {
-      label: 'SAR Author Agent', icon: '📝', color: palette.green.dark1,
-      subtitle: 'RAG \u2192 SARNarrative (5Ws)',
+      label: 'STR Author Agent', icon: '📝', color: palette.green.dark1,
+      subtitle: 'RAG \u2192 STRNarrative (5Ws)',
       mongoBadge: 'Atlas Search RAG',
-      tooltip: 'LLM generates FinCEN-compliant SAR narrative from full evidence corpus via RAG over compliance policies.',
+      tooltip: 'LLM generates FIU-IND-compliant STR narrative from full evidence corpus via RAG over compliance policies.',
     },
   },
   {
@@ -607,7 +608,7 @@ const INITIAL_NODES = [
     data: {
       label: 'Compliance QA Agent', icon: '\u2713', color: palette.blue.dark1,
       subtitle: 'ValidationResult \u2192 Command',
-      tooltip: 'LLM-as-Judge quality gate. Routes to redraft (SAR Author), re-analyze (Case Analyst), Human Review, or Finalize. Max 2 loops.',
+      tooltip: 'LLM-as-Judge quality gate. Routes to redraft (STR Author), re-analyze (Case Analyst), Human Review, or Finalize. Max 2 loops.',
     },
   },
   {
@@ -670,13 +671,13 @@ const INITIAL_EDGES = [
 
   // ── Compliance QA revision loops (dashed yellow) ──────────────────────
   {
-    id: 'e-validation-narrative', source: 'validation', sourceHandle: 'right', target: 'narrative', targetHandle: 'right',
+    id: 'e-validation-narrative', source: 'validation', sourceHandle: 'right', target: 'narrative', targetHandle: 'right-target',
     label: 'redraft', labelStyle: { fontSize: 9, fontWeight: 600, fontFamily: FONT },
     labelBgStyle: { fill: palette.yellow.light3, fillOpacity: 0.95 },
     ...EDGE_BASE, animated: true, style: { ...EDGE_BASE.style, stroke: palette.yellow.dark2, strokeDasharray: '5 3' }, type: 'smoothstep',
   },
   {
-    id: 'e-validation-case', source: 'validation', sourceHandle: 'right', target: 'caseAnalyst', targetHandle: 'right',
+    id: 'e-validation-case', source: 'validation', sourceHandle: 'right', target: 'caseAnalyst', targetHandle: 'right-target',
     label: 're-analyze', labelStyle: { fontSize: 9, fontWeight: 600, fontFamily: FONT },
     labelBgStyle: { fill: palette.yellow.light3, fillOpacity: 0.95 },
     ...EDGE_BASE, animated: true, style: { ...EDGE_BASE.style, stroke: palette.yellow.dark2, strokeDasharray: '5 3' }, type: 'smoothstep',

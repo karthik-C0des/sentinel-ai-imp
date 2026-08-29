@@ -173,16 +173,24 @@ const TransactionNetworkGraph = ({ entityId, onError }) => {
       if (cyRef.current) {
         const layout = cyRef.current.layout({
           name: 'cose',
-          animate: false,
+          animate: true,
+          animationDuration: 800,
           fit: false,
           nodeRepulsion: 8000,
           idealEdgeLength: 100
         });
-        layout.run();
         
-        // Center without fitting
-        cyRef.current.center();
-        cyRef.current.zoom(1);
+        layout.on('layoutstop', () => {
+          if (cyRef.current && !cyRef.current.destroyed()) {
+            cyRef.current.fit(cyRef.current.elements(), 30);
+            if (cyRef.current.zoom() > 1.2) {
+              cyRef.current.zoom(1.2);
+              cyRef.current.center();
+            }
+          }
+        });
+        
+        layout.run();
       }
     }, 100); // Small delay to ensure container is stable
 
@@ -300,8 +308,8 @@ const TransactionNetworkGraph = ({ entityId, onError }) => {
     fullscreenCyRef.current.fit(fullscreenCyRef.current.elements(), 30);
   }, []);
 
-  const formatAmount = (amount, currency = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
+  const formatAmount = (amount, currency = 'INR') => {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency,
       notation: 'compact',
@@ -557,7 +565,6 @@ const TransactionNetworkGraph = ({ entityId, onError }) => {
         open={showFullscreenModal}
         setOpen={setShowFullscreenModal}
         size="large"
-        contentStyle={{ zIndex: 1001 }}
       >
         <div style={{ 
           display: 'flex', 

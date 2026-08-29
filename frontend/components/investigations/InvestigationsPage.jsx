@@ -60,7 +60,7 @@ const CAPABILITY_CATEGORIES = [
     tools: [
       { name: 'search_typologies', desc: 'Search typology library by keyword', op: '$regex' },
       { name: 'lookup_typology', desc: 'Retrieve specific typology definition', op: 'findOne()' },
-      { name: 'search_compliance_policies', desc: 'Search compliance policies and SAR guidelines', op: '$regex' },
+      { name: 'search_compliance_policies', desc: 'Search compliance policies and STR guidelines', op: '$regex' },
     ],
   },
   {
@@ -79,9 +79,9 @@ const CAPABILITY_CARDS = [
   { id: 'trace', label: 'Trace Money Trails', icon: 'Diagram2',
     desc: 'Follow multi-hop fund flows across entity chains',
     prompt: 'Trace the money trail for the most recently escalated entity and flag suspicious hops' },
-  { id: 'sar', label: 'Generate SAR Reports', icon: 'File',
-    desc: 'Create structured SAR narratives with evidence citations',
-    prompt: 'Generate a SAR narrative report for the highest-risk entity' },
+  { id: 'sar', label: 'Generate STR Reports', icon: 'File',
+    desc: 'Create structured STR narratives with evidence citations',
+    prompt: 'Generate a STR narrative report for the highest-risk entity' },
   { id: 'risk', label: 'Assess Entity Risk', icon: 'Warning',
     desc: 'Rapid risk dossier combining profile, transactions, network, and watchlists',
     prompt: 'Which entities have the highest risk scores and why?' },
@@ -94,13 +94,13 @@ const CAPABILITY_CARDS = [
 ];
 
 const ARTIFACT_SHOWCASE = [
-  { label: 'Reports', icon: '\u{1F4C4}', desc: 'SAR narratives, risk assessments' },
+  { label: 'Reports', icon: '📄', desc: 'STR narratives, risk assessments' },
   { label: 'Diagrams', icon: '\u{1F4CA}', desc: 'Flowcharts, entity networks' },
   { label: 'Dashboards', icon: '\u{1F310}', desc: 'Interactive tables, visualizations' },
 ];
 
 const STATUS_BADGES = {
-  filed: { variant: 'green', label: 'SAR Filed' },
+  filed: { variant: 'green', label: 'STR Filed' },
   closed: { variant: 'gray', label: 'Closed' },
   closed_false_positive: { variant: 'lightgray', label: 'Auto-Closed (FP)' },
   forced_escalation: { variant: 'red', label: 'Forced Escalation' },
@@ -330,7 +330,7 @@ export default function InvestigationsPage() {
                 fontSize: uiTokens.captionSize, color: palette.green.dark1, fontFamily: FONT,
                 marginTop: 4, letterSpacing: '0.02em',
               }}>
-                SARs Filed
+                STRs Filed
               </div>
             </div>
           </div>

@@ -6,6 +6,7 @@ results in a single optimized query. This replaces manual score combination logi
 MongoDB's proven reciprocal rank fusion algorithm.
 """
 
+import os
 import logging
 import time
 from typing import List, Dict, Any, Optional
@@ -21,9 +22,9 @@ class HybridSearchService:
     
     def __init__(self, collection: AsyncIOMotorCollection):
         self.collection = collection
-        self.atlas_index_name = "entity_text_search_index"  # Correct index name from working Atlas search
-        self.vector_index_name = "entity_vector_search_index"
-        self.vector_field_name = "profileEmbedding"  # Correct field name from working vector search
+        self.atlas_index_name = os.getenv("ATLAS_SEARCH_INDEX", "entity_resolution_text_search")
+        self.vector_index_name = os.getenv("ENTITY_VECTOR_INDEX", "entity_vector_search_384_new")
+        self.vector_field_name = "profileEmbedding"
     
     async def hybrid_entity_search(
         self,

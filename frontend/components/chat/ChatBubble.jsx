@@ -829,7 +829,7 @@ const PROMPT_CATEGORIES = [
     label: 'Investigations',
     icon: '📋',
     prompts: [
-      'Summarize investigations that resulted in SAR filings',
+      'Summarize investigations that resulted in STR filings',
       "What's the status and evidence for the most recent escalated case?",
     ],
   },
@@ -837,9 +837,9 @@ const PROMPT_CATEGORIES = [
     label: 'Reports & Diagrams',
     icon: '📄',
     prompts: [
-      'Generate a SAR narrative report for the highest-risk entity',
+      'Generate a STR narrative report for the highest-risk entity',
       'Create a flowchart showing the layering money laundering typology',
-      'Create an interactive dashboard summarizing all past SAR filings',
+      'Create an interactive dashboard summarizing all past STR filings',
     ],
   },
 ];

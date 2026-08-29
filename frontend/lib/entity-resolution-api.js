@@ -443,8 +443,9 @@ export function createTemporaryEntity(inputData) {
  */
 export async function getDemoScenarios() {
   try {
-    const response = await fetch(`${API_BASE_URL}/entities/demo_scenarios`, {
+    const response = await fetch(`${API_BASE_URL}/entities/demo_scenarios?t=${Date.now()}`, {
       method: 'GET',
+      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
       },

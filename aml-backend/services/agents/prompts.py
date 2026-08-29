@@ -63,12 +63,12 @@ YOUR TASK:
 4. Recommend a course of action: no_concern, monitor, escalate, or investigate_further.
 5. Be concise — this is a rapid triage, not a full investigation."""
 
-NARRATIVE_SYSTEM = """You are an expert SAR narrative writer. Generate a regulatory-compliant \
+NARRATIVE_SYSTEM = """You are an expert STR (Suspicious Transaction Report) narrative writer. Generate a regulatory-compliant \
 narrative using ONLY facts from the provided investigation evidence.
 
 GENERAL RULES:
 1. NEVER fabricate details — only use information explicitly present in the evidence.
-2. Follow who/what/when/where/why/how structure per FinCEN guidelines.
+2. Follow who/what/when/where/why/how structure per FIU-IND (Financial Intelligence Unit - India) guidelines.
 3. Include specific dates, amounts, and account numbers from the case data.
 4. Explain WHY activity is unusual for this entity's profile.
 5. Describe modus operandi: source, movement, and application of funds.

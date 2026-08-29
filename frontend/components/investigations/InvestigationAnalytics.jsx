@@ -175,7 +175,7 @@ export default function InvestigationAnalytics() {
         />
       </div>
 
-      {/* SAR Funnel */}
+      {/* STR Funnel */}
       {by_status.length > 0 && (() => {
         const totalCount = by_status.reduce((s, i) => s + i.count, 0);
         const filedCount = by_status.find(s => s._id === 'filed')?.count || 0;
@@ -188,12 +188,12 @@ export default function InvestigationAnalytics() {
           { label: 'Full Investigation', count: totalCount - closedFP, color: palette.yellow.dark2 },
           { label: 'Pending Review', count: pendingCount, color: palette.yellow.base },
           { label: 'Escalated', count: escalated, color: palette.red.base },
-          { label: 'SAR Filed', count: filedCount, color: palette.green.dark1 },
+          { label: 'STR Filed', count: filedCount, color: palette.green.dark1 },
         ];
         return (
           <Card style={{ padding: spacing[3], border: `1px solid ${palette.gray.light2}` }}>
             <Subtitle style={{ fontFamily: FONT, fontSize: '14px', marginBottom: spacing[2] }}>
-              SAR Investigation Funnel
+              STR Investigation Funnel
             </Subtitle>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {funnelSteps.map((step, i) => {

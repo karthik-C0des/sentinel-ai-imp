@@ -37,7 +37,7 @@ const TOOL_TO_MONGO_OP = {
   },
   search_compliance_policies: {
     op: 'Atlas Search on compliance_policies',
-    desc: 'RAG search over FinCEN SAR filing requirements and regulatory guidance',
+    desc: 'RAG search over FIU-IND STR filing requirements and regulatory guidance',
     feature: 'Atlas Search RAG',
   },
   compute_network_metrics: {
@@ -51,7 +51,7 @@ const AGENT_MONGO_OPS = {
   triage: { op: 'MongoDBSaver checkpoint', feature: 'MongoDBSaver', desc: 'Checkpointing triage decision and risk score to durable state' },
   data_gathering: { op: 'MongoDBSaver checkpoint', feature: 'MongoDBSaver', desc: 'Saving pre-gather state before parallel fan-out' },
   assemble_case: { op: 'MongoDBSaver checkpoint', feature: 'MongoDBSaver', desc: 'Persisting assembled 360° case file and typology classification to graph state' },
-  narrative: { op: 'MongoDBSaver checkpoint', feature: 'MongoDBSaver', desc: 'Persisting generated SAR narrative' },
+  narrative: { op: 'MongoDBSaver checkpoint', feature: 'MongoDBSaver', desc: 'Persisting generated STR narrative' },
   validation: { op: 'MongoDBSaver checkpoint', feature: 'MongoDBSaver', desc: 'Checkpointing validation result and routing decision' },
   human_review: { op: 'MongoDBSaver interrupt()', feature: 'MongoDBSaver', desc: 'Durable pipeline pause — full state persisted for resume' },
   finalize: { op: 'db.investigations.insertOne()', feature: 'Document Model', desc: 'Persisting complete investigation as a single rich document' },
@@ -149,7 +149,7 @@ export default function InvestigationInsightsPanel({ events = [], running = fals
       ];
       cps.push({ node: 'assemble_case', label: 'Case File + Typology', keys });
     }
-    if (accumulatedEvidence?.narrative) cps.push({ node: 'narrative', label: 'SAR Narrative', keys: Object.keys(accumulatedEvidence.narrative) });
+    if (accumulatedEvidence?.narrative) cps.push({ node: 'narrative', label: 'STR Narrative', keys: Object.keys(accumulatedEvidence.narrative) });
     if (accumulatedEvidence?.validation_result) cps.push({ node: 'validation', label: 'Quality Validation', keys: Object.keys(accumulatedEvidence.validation_result) });
     if (accumulatedEvidence?.human_decision) cps.push({ node: 'human_review', label: 'Human Review (HITL Interrupt)', keys: Object.keys(accumulatedEvidence.human_decision) });
     const hasFinalize = accumulatedEvidence?.case_id || events.some(e => e.type === 'agent_end' && e.agent === 'finalize');

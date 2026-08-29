@@ -73,11 +73,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         # SAFE CATEGORY (Low Risk) - 3 Options
         {
             "id": "safe_individual_1",
-            "name": "Safe Individual - Marco Johnson",
-            "description": "Generic low-risk individual from Switzerland",
+            "name": "Safe Individual - Aarav Sharma",
+            "description": "Generic low-risk individual from India",
             "entityData": {
-                "fullName": "Marco Johnson",
-                "address": "3008 Main St, Zurich, ZA",
+                "fullName": "Aarav Sharma",
+                "address": "3008 Main St, Mumbai, MH, 400001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "SAFE",
@@ -85,11 +85,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "safe_individual_2",
-            "name": "Safe Individual - Amara Fischer",
-            "description": "Generic low-risk individual from Brazil",
+            "name": "Safe Individual - Priya Patel",
+            "description": "Generic low-risk individual from India",
             "entityData": {
-                "fullName": "Amara Fischer",
-                "address": "5672 Main St, Panama City, BR",
+                "fullName": "Priya Patel",
+                "address": "5672 Main St, Delhi, DL, 110001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "SAFE",
@@ -97,11 +97,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "safe_individual_3",
-            "name": "Safe Individual - Célina Barron",
-            "description": "Generic low-risk individual from Canada",
+            "name": "Safe Individual - Sneha Verma",
+            "description": "Generic low-risk individual from India",
             "entityData": {
-                "fullName": "Célina Barron",
-                "address": "23220 Brandon Station, Martinezview, PE, 56544, Canada",
+                "fullName": "Sneha Verma",
+                "address": "23220 Brandon Station, Bengaluru, KA, 560001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "SAFE",
@@ -111,11 +111,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         # DUPLICATE CATEGORY - 3 Options
         {
             "id": "duplicate_individual_1",
-            "name": "Duplicate - Mark Santiago",
+            "name": "Duplicate - Amit Gupta",
             "description": "Subtle duplicate cluster member",
             "entityData": {
-                "fullName": "Mark Santiago",
-                "address": "Studio 53r Green locks, Apt 63B, Ollivierdan, 25708, United Kingdom",
+                "fullName": "Amit Gupta",
+                "address": "Studio 53r Green locks, Apt 63B, Hyderabad, TG, 500001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "DUPLICATE",
@@ -123,11 +123,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "duplicate_individual_2", 
-            "name": "Duplicate - Chr Luce Benthin",
+            "name": "Duplicate - Amit K Gupta",
             "description": "Clear duplicate set member",
             "entityData": {
-                "fullName": "Chr Luce Benthin",
-                "address": "91 Fox isle, Carre, DC 99565, USA",
+                "fullName": "Amit K Gupta",
+                "address": "91 Fox isle, Hyderabad, TG, 500001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "DUPLICATE",
@@ -135,11 +135,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "duplicate_individual_3",
-            "name": "Duplicate - Bernadette Griffin",
+            "name": "Duplicate - Ananya Singh",
             "description": "Household set member with address similarity",
             "entityData": {
-                "fullName": "Bernadette Griffin",
-                "address": "Marlene-Schmidtke-Gasse 8, Saint Alice, ND 57636, USA",
+                "fullName": "Ananya Singh",
+                "address": "Marlene-Schmidtke-Gasse 8, Chennai, TN, 600001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "DUPLICATE",
@@ -149,11 +149,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         # HIGH RISK CATEGORY - 3 Options
         {
             "id": "high_risk_org_1",
-            "name": "High Risk - Summit Investments Inc",
-            "description": "Shell company candidate from Panama",
+            "name": "High Risk - Summit Investments India Pvt Ltd",
+            "description": "Shell company candidate from India",
             "entityData": {
-                "fullName": "Summit Investments Inc 394",
-                "address": "5985 Main St, Lagos, PA",
+                "fullName": "Summit Investments India Pvt Ltd",
+                "address": "5985 Main St, Kolkata, WB, 700001, India",
                 "entityType": "organization"
             },
             "expectedClassification": "RISKY",
@@ -161,11 +161,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "high_risk_org_2",
-            "name": "High Risk - BrotSequi Enterprises",
-            "description": "Sanctioned organization from Syria",
+            "name": "High Risk - BrotSequi Traders",
+            "description": "Sanctioned organization from India",
             "entityData": {
-                "fullName": "BrotSequi Enterprises",
-                "address": "Studio 92 Cooke cove, North Ashley, Y3G 1V1, Syria",
+                "fullName": "BrotSequi Traders",
+                "address": "Studio 92 Cooke cove, Pune, MH, 411001, India",
                 "entityType": "organization"
             },
             "expectedClassification": "RISKY",
@@ -173,11 +173,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "high_risk_org_3",
-            "name": "High Risk - Zorbach Holdings",
-            "description": "Sanctioned organization from Panama",
+            "name": "High Risk - Zorbach Holdings Pvt Ltd",
+            "description": "Sanctioned organization from India",
             "entityData": {
-                "fullName": "Zorbach Holdings LLC",
-                "address": "8207 Alicia Orchard, Nicholasville, K1H 6J6, Panama",
+                "fullName": "Zorbach Holdings Pvt Ltd",
+                "address": "8207 Alicia Orchard, Surat, GJ, 395003, India",
                 "entityType": "organization"
             },
             "expectedClassification": "RISKY",
@@ -187,11 +187,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         # COMPLEX CORPORATE STRUCTURE - 3 Options
         {
             "id": "complex_corp_1",
-            "name": "Complex Corp - NoneAbandonner LLC",
-            "description": "Complex organizational substructure from Hong Kong",
+            "name": "Complex Corp - NoneAbandonner India",
+            "description": "Complex organizational substructure from India",
             "entityData": {
-                "fullName": "NoneAbandonner LLC",
-                "address": "9754 Michael Extensions Suite 076, Lake Chelseastad, DG0 3ZW, Hong Kong",
+                "fullName": "NoneAbandonner India",
+                "address": "9754 Michael Extensions Suite 076, Mumbai, MH, 400001, India",
                 "entityType": "organization"
             },
             "expectedClassification": "RISKY",
@@ -199,11 +199,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "complex_corp_2",
-            "name": "Complex Corp - Rodriguez Holdings",
+            "name": "Complex Corp - Reliance Logistics Holdings",
             "description": "Complex logistics holding structure",
             "entityData": {
-                "fullName": "Rodriguez Holdings Logistics",
-                "address": "388 Lopez Squares Apt. 778, West Angela, PO8Y 3GD, Hong Kong",
+                "fullName": "Reliance Logistics Holdings",
+                "address": "388 Lopez Squares Apt. 778, Delhi, DL, 110001, India",
                 "entityType": "organization"
             },
             "expectedClassification": "RISKY",
@@ -211,11 +211,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "complex_corp_3",
-            "name": "Complex Corp - Deploy Trading",
-            "description": "Complex trading corporation from Germany",
+            "name": "Complex Corp - Deploy Trading Corp India",
+            "description": "Complex trading corporation from India",
             "entityData": {
-                "fullName": "deploy Trading Corp.",
-                "address": "rue Louis, Potiernec, 01800, Germany",
+                "fullName": "Deploy Trading Corp India",
+                "address": "rue Louis, Bengaluru, KA, 560001, India",
                 "entityType": "organization"
             },
             "expectedClassification": "RISKY",
@@ -225,11 +225,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         # POLITICALLY EXPOSED PERSON (PEP) - 3 Options
         {
             "id": "pep_individual_1",
-            "name": "PEP - Betti Arnaude Barton",
-            "description": "Politically exposed person from South Africa",
+            "name": "PEP - Rajesh Mehta",
+            "description": "Politically exposed person from India",
             "entityData": {
-                "fullName": "Betti Arnaude Barton",
-                "address": "9, avenue de Bouvet, Fritzville, J2K 7K7, South Africa",
+                "fullName": "Rajesh Mehta",
+                "address": "9, avenue de Bouvet, Ahmedabad, GJ, 380001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "RISKY",
@@ -237,11 +237,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "pep_individual_2",
-            "name": "PEP - Karen Gérard Atzler",
-            "description": "Politically exposed person from Bahrain",
+            "name": "PEP - Sunita Kulkarni",
+            "description": "Politically exposed person from India",
             "entityData": {
-                "fullName": "Karen Gérard Atzler",
-                "address": "055 Tiffany Points Suite 709, Hammelburg, Y2N 7T5, Bahrain",
+                "fullName": "Sunita Kulkarni",
+                "address": "055 Tiffany Points Suite 709, Chennai, TN, 600001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "RISKY",
@@ -249,11 +249,11 @@ async def get_enhanced_demo_scenarios() -> Dict[str, Any]:
         },
         {
             "id": "pep_individual_3",
-            "name": "PEP - Charlene Angela Moran",
-            "description": "Politically exposed person from Germany",
+            "name": "PEP - Vikram Iyer",
+            "description": "Politically exposed person from India",
             "entityData": {
-                "fullName": "Charlene Angela Moran",
-                "address": "3484 Gonzalez Summit, North Kylemouth, Schleswig-Holstein, 50999, Germany",
+                "fullName": "Vikram Iyer",
+                "address": "3484 Gonzalez Summit, Pune, MH, 411001, India",
                 "entityType": "individual"
             },
             "expectedClassification": "RISKY",

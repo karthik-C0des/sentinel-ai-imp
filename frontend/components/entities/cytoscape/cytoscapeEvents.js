@@ -20,7 +20,9 @@ export const setupCytoscapeEvents = (cy, callbacks = {}) => {
   
   // Node click with enhanced AML data
   cy.on('tap', 'node', function(evt) {
+    if (cy.destroyed()) return;
     const node = evt.target;
+    if (node.removed() || !node.cy() || node.cy().destroyed()) return;
     
     // Calculate real-time centrality if not available
     const centrality = node.data('centrality') || calculateNodeCentrality(cy, node);
@@ -71,8 +73,9 @@ export const setupCytoscapeEvents = (cy, callbacks = {}) => {
   
   // Node hover effects
   cy.on('mouseover', 'node', function(evt) {
+    if (cy.destroyed()) return;
     const node = evt.target;
-    if (node.removed()) return; // Safeguard against removed nodes causing 'notify' error
+    if (node.removed() || !node.cy() || node.cy().destroyed()) return; // Safeguard against removed nodes causing 'notify' error
     
     // Visual hover effects
     node.addClass('highlighted');
@@ -85,8 +88,9 @@ export const setupCytoscapeEvents = (cy, callbacks = {}) => {
   });
   
   cy.on('mouseout', 'node', function(evt) {
+    if (cy.destroyed()) return;
     const node = evt.target;
-    if (node.removed()) return; // Safeguard against removed nodes causing 'notify' error
+    if (node.removed() || !node.cy() || node.cy().destroyed()) return; // Safeguard against removed nodes causing 'notify' error
     
     // Remove hover effects (but keep selection highlights)
     if (!node.selected()) {
@@ -121,7 +125,9 @@ export const setupCytoscapeEvents = (cy, callbacks = {}) => {
   
   // Edge click with relationship analysis
   cy.on('tap', 'edge', function(evt) {
+    if (cy.destroyed()) return;
     const edge = evt.target;
+    if (edge.removed() || !edge.cy() || edge.cy().destroyed()) return;
     
     // Enhanced edge data for AML analysis
     const enhancedEdgeData = {
@@ -165,8 +171,9 @@ export const setupCytoscapeEvents = (cy, callbacks = {}) => {
   
   // Edge hover effects
   cy.on('mouseover', 'edge', function(evt) {
+    if (cy.destroyed()) return;
     const edge = evt.target;
-    if (edge.removed()) return;
+    if (edge.removed() || !edge.cy() || edge.cy().destroyed()) return;
     
     edge.addClass('highlighted');
     if (!edge.source().removed()) edge.source().addClass('highlighted');
@@ -176,8 +183,9 @@ export const setupCytoscapeEvents = (cy, callbacks = {}) => {
   });
   
   cy.on('mouseout', 'edge', function(evt) {
+    if (cy.destroyed()) return;
     const edge = evt.target;
-    if (edge.removed()) return;
+    if (edge.removed() || !edge.cy() || edge.cy().destroyed()) return;
     
     if (!edge.selected()) {
       edge.removeClass('highlighted');

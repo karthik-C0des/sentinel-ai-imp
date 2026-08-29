@@ -27,9 +27,9 @@ const INVESTIGATION_CATEGORIES = [
     alert_type: 'suspicious_structure',
     badge: { variant: 'red', label: 'High Risk' },
     entities: [
-      { entity_id: 'shell_company_candidate_var0', label: 'Shell Co. Variant 0' },
-      { entity_id: 'shell_company_candidate_var1', label: 'Shell Co. Variant 1' },
-      { entity_id: 'shell_company_candidate_var2', label: 'Shell Co. Variant 2' },
+      { entity_id: 'ENT-DEMO-006', label: 'Summit Investments India Pvt Ltd' },
+      { entity_id: 'ENT-DEMO-007', label: 'BrotSequi Traders' },
+      { entity_id: 'ENT-DEMO-008', label: 'Zorbach Holdings Pvt Ltd' },
     ],
     defaultTypology: 'typ_shell_company',
   },
@@ -40,9 +40,9 @@ const INVESTIGATION_CATEGORIES = [
     alert_type: 'pep_alert',
     badge: { variant: 'yellow', label: 'PEP' },
     entities: [
-      { entity_id: 'pep_individual_varied_0', label: 'PEP Individual 0' },
-      { entity_id: 'pep_individual_varied_1', label: 'PEP Individual 1' },
-      { entity_id: 'pep_individual_varied_2', label: 'PEP Individual 2' },
+      { entity_id: 'ENT-DEMO-012', label: 'Rajesh Mehta' },
+      { entity_id: 'ENT-DEMO-013', label: 'Sunita Kulkarni' },
+      { entity_id: 'ENT-DEMO-014', label: 'Vikram Iyer' },
     ],
     defaultTypology: 'typ_pep_abuse',
   },
@@ -53,9 +53,9 @@ const INVESTIGATION_CATEGORIES = [
     alert_type: 'sanctions_alert',
     badge: { variant: 'red', label: 'Critical' },
     entities: [
-      { entity_id: 'sanctioned_org_varied_0', label: 'Sanctioned Org 0' },
-      { entity_id: 'sanctioned_org_varied_1', label: 'Sanctioned Org 1' },
-      { entity_id: 'sanctioned_org_varied_2', label: 'Sanctioned Org 2' },
+      { entity_id: 'ENT-DEMO-009', label: 'NoneAbandonner India' },
+      { entity_id: 'ENT-DEMO-010', label: 'Reliance Logistics Holdings' },
+      { entity_id: 'ENT-DEMO-011', label: 'Deploy Trading Corp India' },
     ],
     defaultTypology: 'typ_sanctions_evasion',
   },
@@ -66,9 +66,9 @@ const INVESTIGATION_CATEGORIES = [
     alert_type: 'suspicious_activity',
     badge: { variant: 'yellow', label: 'Suspicious' },
     entities: [
-      { entity_id: 'rapid_mover_var0', label: 'Rapid Mover 0' },
-      { entity_id: 'rapid_mover_var1', label: 'Rapid Mover 1' },
-      { entity_id: 'rapid_mover_var2', label: 'Rapid Mover 2' },
+      { entity_id: 'ENT-IN-2004', label: 'Amit Patel (High volume)' },
+      { entity_id: 'ENT-IN-2049', label: 'Mahadev Gaming Consultancy LLP' },
+      { entity_id: 'ENT-IN-2047', label: 'Navkar Bullion & Gold Traders' },
     ],
     defaultTypology: 'typ_structuring',
   },
@@ -79,8 +79,8 @@ const INVESTIGATION_CATEGORIES = [
     alert_type: 'routine_monitoring',
     badge: { variant: 'green', label: 'Low Risk' },
     entities: [
-      { entity_id: 'generic_individual', label: 'Generic Individual' },
-      { entity_id: 'generic_organization', label: 'Generic Organization' },
+      { entity_id: 'ENT-DEMO-003', label: 'Amit Gupta (Low Risk)' },
+      { entity_id: 'ENT-DEMO-004', label: 'Amit K Gupta (Medium Risk)' },
     ],
     defaultTypology: null,
   },
@@ -91,9 +91,9 @@ const INVESTIGATION_CATEGORIES = [
     alert_type: 'suspicious_activity',
     badge: { variant: 'blue', label: 'Complex' },
     entities: [
-      { entity_id: 'hnwi_global_investor_0', label: 'HNWI Investor 0' },
-      { entity_id: 'hnwi_global_investor_1', label: 'HNWI Investor 1' },
-      { entity_id: 'hnwi_global_investor_2', label: 'HNWI Investor 2' },
+      { entity_id: 'ENT-DEMO-000', label: 'Aarav Sharma' },
+      { entity_id: 'ENT-DEMO-001', label: 'Priya Patel' },
+      { entity_id: 'ENT-DEMO-005', label: 'Ananya Singh' },
     ],
     defaultTypology: 'typ_trade_based_ml',
   },
@@ -113,7 +113,7 @@ const AGENT_LABELS = {
   trail_follower: { label: 'Trail Follower Agent', glyph: 'ArrowRight', color: palette.blue.dark2, desc: 'LLM lead selection from network + temporal' },
   sub_investigation_dispatch: { label: 'Sub-Investigation Fan-out', glyph: 'Beaker', color: palette.purple.base, desc: 'Parallel mini-investigation fan-out' },
   dispatch_sub_investigations: { label: 'Sub-Investigation Fan-out', glyph: 'Beaker', color: palette.purple.base, desc: 'Parallel mini-investigation fan-out' },
-  narrative: { label: 'SAR Author Agent', glyph: 'Edit', color: palette.green.base, desc: 'FinCEN 5Ws narrative with full evidence' },
+  narrative: { label: 'STR Author Agent', glyph: 'Edit', color: palette.green.base, desc: 'FIU-IND 5Ws narrative with full evidence' },
   validation: { label: 'Compliance QA Agent', glyph: 'Checkmark', color: palette.blue.dark1, desc: 'LLM-as-Judge quality gate' },
   human_review: { label: 'Human Review', glyph: 'Visibility', color: palette.red.base, desc: 'interrupt() durable pause for analyst' },
   finalize: { label: 'Finalizing Case', glyph: 'File', color: palette.green.dark2, desc: 'Persist investigation to MongoDB' },
@@ -1358,7 +1358,7 @@ function HumanReviewPanel({ payload, accumulatedEvidence, analystNotes, onNotesC
       render: () => caseFile?.transactions && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[3] }}>
           <MiniInfo label="Total Count" value={caseFile.transactions.total_count} />
-          <MiniInfo label="Volume" value={`$${(caseFile.transactions.total_volume || 0).toLocaleString()}`} />
+          <MiniInfo label="Volume" value={`₹${(caseFile.transactions.total_volume || 0).toLocaleString()}`} />
           <MiniInfo label="High-Risk" value={caseFile.transactions.high_risk_count} />
         </div>
       ),
@@ -1551,7 +1551,7 @@ function HumanReviewPanel({ payload, accumulatedEvidence, analystNotes, onNotesC
           disabled={disabled || !evidenceReviewed}
           style={{ flex: 1.2 }}
         >
-          Approve & File SAR
+          Approve & File STR
         </Button>
         <Button variant="default" onClick={() => onDecision('request_changes')} disabled={disabled} style={{ flex: 1 }}>
           Request Changes

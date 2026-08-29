@@ -64,7 +64,9 @@ def _is_retryable(exc: BaseException) -> bool:
     if name in ("ThrottlingException", "ServiceUnavailableException", "ModelTimeoutException"):
         return True
     msg = str(exc).lower()
-    return any(kw in msg for kw in ("throttl", "timeout", "rate exceeded", "service unavailable"))
+    if any(kw in msg for kw in ("throttl", "timeout", "rate exceeded", "service unavailable", "failed to parse tool call arguments", "tool_use_failed")):
+        return True
+    return False
 
 
 @retry(

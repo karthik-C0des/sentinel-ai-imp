@@ -192,6 +192,19 @@ async def launch_investigation(request: Dict[str, Any]):
         **{k: v for k, v in request.items() if k not in ("entity_id", "alert_type")},
     }
 
+    # Fetch entity context to enrich the alert so Triage Agent can make an informed decision
+    try:
+        client = get_mongo_client()
+        entity = client[DB_NAME]["threatsightEntities"].find_one({"entityId": entity_id})
+        if entity:
+            alert_data["riskAssessment"] = entity.get("riskAssessment", {})
+            alert_data["watchlistFlags"] = entity.get("watchlistFlags", {})
+            alert_data["entity_type"] = entity.get("entityType", "unknown")
+            if "status" in entity:
+                alert_data["entity_status"] = entity["status"]
+    except Exception as exc:
+        logger.warning(f"Failed to enrich alert data for triage: {exc}")
+
     # Insert alert document into alerts collection (event-driven trigger pattern)
     alert_doc = {
         "entity_id": entity_id,

@@ -135,7 +135,12 @@ const CytoscapeNetworkComponent = ({
       layout.on('layoutstop', () => {
         setIsLayoutRunning(false);
         if (cyRef.current) {
+          const originalMaxZoom = cyRef.current.maxZoom();
+          cyRef.current.maxZoom(1.0);
+          cyRef.current.resize();
           cyRef.current.fit(cyRef.current.elements(), 30);
+          cyRef.current.center();
+          cyRef.current.maxZoom(originalMaxZoom);
         }
       });
       layout.run();
@@ -166,7 +171,12 @@ const CytoscapeNetworkComponent = ({
       const layout = fullscreenCyRef.current.layout(layoutConfig);
       layout.on('layoutstop', () => {
         if (fullscreenCyRef.current) {
+          const originalMaxZoom = fullscreenCyRef.current.maxZoom();
+          fullscreenCyRef.current.maxZoom(1.0);
+          fullscreenCyRef.current.resize();
           fullscreenCyRef.current.fit(fullscreenCyRef.current.elements(), 30);
+          fullscreenCyRef.current.center();
+          fullscreenCyRef.current.maxZoom(originalMaxZoom);
         }
       });
       layout.run();
@@ -180,7 +190,12 @@ const CytoscapeNetworkComponent = ({
   const handleZoomToFit = useCallback((isFullscreen = false) => {
     const targetCy = isFullscreen ? fullscreenCyRef.current : cyRef.current;
     if (!targetCy) return;
+    const originalMaxZoom = targetCy.maxZoom();
+    targetCy.maxZoom(1.0);
+    targetCy.resize();
     targetCy.fit(targetCy.elements(), 50);
+    targetCy.center();
+    targetCy.maxZoom(originalMaxZoom);
   }, []);
 
   // Handle reset view for both main and fullscreen
@@ -188,7 +203,12 @@ const CytoscapeNetworkComponent = ({
     const targetCy = isFullscreen ? fullscreenCyRef.current : cyRef.current;
     if (!targetCy) return;
     targetCy.reset();
+    const originalMaxZoom = targetCy.maxZoom();
+    targetCy.maxZoom(1.0);
+    targetCy.resize();
     targetCy.fit(targetCy.elements(), 50);
+    targetCy.center();
+    targetCy.maxZoom(originalMaxZoom);
   }, []);
 
   // Apply layout when data changes
@@ -212,8 +232,22 @@ const CytoscapeNetworkComponent = ({
             const layout = cyRef.current.layout(layoutConfig);
             layout.on('layoutstop', () => {
               setIsLayoutRunning(false);
-              // Manual fit to container bounds after layout completes
-              cyRef.current.fit(cyRef.current.elements(), 30);
+              
+              if (cyRef.current) {
+                // Temporarily limit max zoom for the initial fit to prevent giant nodes
+                const originalMaxZoom = cyRef.current.maxZoom();
+                cyRef.current.maxZoom(1.0);
+                
+                // Ensure Cytoscape recalculates container dimensions before centering
+                cyRef.current.resize();
+                
+                // Fit to container bounds
+                cyRef.current.fit(cyRef.current.elements(), 30);
+                cyRef.current.center();
+                
+                // Restore original max zoom
+                cyRef.current.maxZoom(originalMaxZoom);
+              }
             });
             layout.run();
             
@@ -389,8 +423,13 @@ const CytoscapeNetworkComponent = ({
 
       // Fit the graph after layout
       cyRef.current.ready(() => {
-        cyRef.current.fit();
-        cyRef.current.center();
+        if (cyRef.current) {
+          const originalMaxZoom = cyRef.current.maxZoom();
+          cyRef.current.maxZoom(1.0);
+          cyRef.current.fit(cyRef.current.elements(), 30);
+          cyRef.current.center();
+          cyRef.current.maxZoom(originalMaxZoom);
+        }
       });
 
     } catch (error) {
@@ -748,14 +787,18 @@ const CytoscapeNetworkComponent = ({
                           ...cytoscapeLayouts[fullscreenLayout],
                           animate: true,
                           animationDuration: 800,
-                          fit: true,
-                          padding: 50
+                          fit: false
                         };
                         const layout = fullscreenCyRef.current.layout(layoutConfig);
                         layout.on('layoutstop', () => {
                           console.log('✅ Fullscreen layout complete');
                           if (fullscreenCyRef.current) {
-                            fullscreenCyRef.current.fit(fullscreenCyRef.current.elements(), 50);
+                            const originalMaxZoom = fullscreenCyRef.current.maxZoom();
+                            fullscreenCyRef.current.maxZoom(1.0);
+                            fullscreenCyRef.current.resize();
+                            fullscreenCyRef.current.fit(fullscreenCyRef.current.elements(), 30);
+                            fullscreenCyRef.current.center();
+                            fullscreenCyRef.current.maxZoom(originalMaxZoom);
                           }
                         });
                         layout.run();

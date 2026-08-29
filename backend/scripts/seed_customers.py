@@ -29,20 +29,19 @@ def now():
 def rand_date(days_back: int = 1800) -> str:
     return (datetime.now(timezone.utc) - timedelta(days=random.randint(0, days_back))).isoformat()
 
-FIRST  = ["James","Maria","Chen","Ahmed","Sofia","Robert","Priya","Carlos","Anna","Michael",
-          "Fatima","Luca","Yuki","David","Amara","Hassan","Elena","Marco","Nadia","Patrick"]
-LAST   = ["Smith","Santos","Wang","Al-Rashid","Mueller","Johnson","Patel","Rodriguez",
-          "Fischer","Okafor","Nguyen","Rossi","Tanaka","Brown","Diallo","Hassan",
-          "Petrova","Bianchi","Kim","Williams"]
+FIRST  = ["Aarav","Amit","Rahul","Priya","Sneha","Vikram","Deepak","Ananya","Rajesh","Sunita",
+          "Kavita","Sanjay","Neha","Ravi","Pooja","Arjun","Kiran","Manoj","Divya","Anil"]
+LAST   = ["Sharma","Patel","Verma","Gupta","Singh","Shah","Mehta","Kulkarni","Iyer","Nair",
+          "Reddy","Rao","Das","Bose","Chowdhury","Joshi","Desai","Jain","Kapoor","Yadav"]
 CITIES = [
-    ("New York","NY","US",[-73.9857,40.7484]),
-    ("Los Angeles","CA","US",[-118.2437,34.0522]),
-    ("London","ENG","GB",[-0.1276,51.5074]),
-    ("Singapore","SG","SG",[103.8198,1.3521]),
-    ("Dubai","DU","AE",[55.2708,25.2048]),
-    ("Zurich","ZH","CH",[8.5417,47.3769]),
-    ("Toronto","ON","CA",[-79.3832,43.6532]),
-    ("Sydney","NSW","AU",[151.2093,-33.8688]),
+    ("Mumbai","MH","IN",[72.8777,19.0760]),
+    ("Delhi","DL","IN",[77.1025,28.7041]),
+    ("Bengaluru","KA","IN",[77.5946,12.9716]),
+    ("Hyderabad","TS","IN",[78.4867,17.3850]),
+    ("Ahmedabad","GJ","IN",[72.5714,23.0225]),
+    ("Chennai","TN","IN",[80.2707,13.0827]),
+    ("Kolkata","WB","IN",[88.3639,22.5726]),
+    ("Pune","MH","IN",[73.8567,18.5204]),
 ]
 CATEGORIES  = ["retail","restaurant","grocery","gas","healthcare","utilities","entertainment","travel","money_transfer"]
 DEVICES     = [

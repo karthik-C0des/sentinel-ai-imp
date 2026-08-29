@@ -282,7 +282,6 @@ function SimilarProfilesSection({ entity }) {
         open={showModal}
         setOpen={setShowModal}
         size="large"
-        contentStyle={{ zIndex: 1001 }}
       >
         <H2 style={{ marginBottom: spacing[3] }}>Similar Profiles Found</H2>
         

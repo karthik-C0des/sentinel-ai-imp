@@ -209,7 +209,9 @@ class EnhancedEntityResolutionAPI {
    */
   async getDemoScenarios() {
     try {
-      const response = await fetch(`${this.baseURL}/api/v1/resolution/demo-scenarios-enhanced`);
+      const response = await fetch(`${this.baseURL}/api/v1/resolution/demo-scenarios-enhanced?t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       
       if (!response.ok) {
         throw new Error(`Failed to fetch demo scenarios: ${response.status} ${response.statusText}`);

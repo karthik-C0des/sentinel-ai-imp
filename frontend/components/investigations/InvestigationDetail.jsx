@@ -787,7 +787,7 @@ function NarrativeTab({ narrative }) {
     <Card style={{ padding: spacing[4], border: `1px solid ${palette.gray.light2}` }}>
       {/* Document header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing[3], paddingBottom: spacing[2], borderBottom: `1px solid ${palette.gray.light2}` }}>
-        <H3 style={{ fontFamily: FONT, margin: 0, fontSize: 18 }}>SAR Narrative</H3>
+        <H3 style={{ fontFamily: FONT, margin: 0, fontSize: 18 }}>STR Narrative</H3>
         <button
           onClick={handleCopy}
           style={{

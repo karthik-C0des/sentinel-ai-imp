@@ -200,6 +200,19 @@ class TransactionRepository:
         entity_metrics = {}
         all_entities = set()
         
+        # Fetch actual entity names and types
+        db = self.transactions_collection.database
+        entities_cursor = db.threatsightEntities.find(
+            {"entityId": {"$in": list(connected_entities)}},
+            {"entityId": 1, "name.full": 1, "entityType": 1}
+        )
+        entity_info = {}
+        async for doc in entities_cursor:
+            entity_info[doc["entityId"]] = {
+                "name": doc.get("name", {}).get("full", "Unknown"),
+                "type": doc.get("entityType", "unknown")
+            }
+            
         for txn in all_transactions:
             # We must correctly assign sender and receiver based on direction
             if txn.get("direction") == "outgoing":
@@ -212,11 +225,11 @@ class TransactionRepository:
             amount = txn.get("amount", 0.0)
             risk_score = txn.get("riskScore", 85.0 if txn.get("flagged") else 15.0)
             
-            # Use fallback names/types since they aren't directly in the sample document
-            from_name = txn.get("fromEntityName", "Unknown")
-            from_type = txn.get("fromEntityType", "Unknown")
-            to_name = txn.get("toEntityName", "Unknown")
-            to_type = txn.get("toEntityType", "Unknown")
+            # Use actual entity names and types
+            from_name = entity_info.get(from_id, {}).get("name", "Unknown")
+            from_type = entity_info.get(from_id, {}).get("type", "unknown")
+            to_name = entity_info.get(to_id, {}).get("name", "Unknown")
+            to_type = entity_info.get(to_id, {}).get("type", "unknown")
             
             # Track all entities
             all_entities.add((from_id, from_name, from_type))

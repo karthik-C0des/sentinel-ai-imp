@@ -1165,8 +1165,8 @@ function ComprehensiveOverviewTab({ entity }) {
                 )}
                 {entity.customerInfo.monthlyIncomeUSD && (
                   <div>
-                    <Label>Monthly Income (USD)</Label>
-                    <Body weight="medium">${entity.customerInfo.monthlyIncomeUSD.toLocaleString()}</Body>
+                    <Label>Monthly Income (INR)</Label>
+                    <Body weight="medium">₹{entity.customerInfo.monthlyIncomeUSD.toLocaleString('en-IN')}</Body>
                   </div>
                 )}
               </div>

@@ -200,7 +200,7 @@ class SARNarrative(BaseModel):
 
 class ValidationResult(BaseModel):
     is_valid: bool = False
-    score: float = Field(ge=0, le=100, default=0, description="Quality score from 0 to 100 (must be a numeric value, e.g., 85.0)")
+    score: int = Field(ge=0, le=100, default=0, description="Quality score from 0 to 100 (must be an integer, e.g., 85)")
     issues: List[str] = Field(default_factory=list)
     missing_data: List[str] = Field(default_factory=list)
     factual_errors: List[str] = Field(default_factory=list)

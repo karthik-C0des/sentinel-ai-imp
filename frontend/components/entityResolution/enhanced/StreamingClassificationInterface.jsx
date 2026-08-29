@@ -396,7 +396,7 @@ function StreamingClassificationInterface({ workflowData, onComplete, onError, o
     switch (streamingState.phase) {
       case 'starting': return 'Preparing comprehensive entity analysis...';
       case 'prompt_ready': return 'Analysis prompt generated with full workflow context';
-      case 'llm_streaming': return 'Claude Sonnet 4 analyzing entity risk profile...';
+      case 'llm_streaming': return `${streamingState.model || 'AI model'} analyzing entity risk profile...`;
       case 'processing': return 'Structuring AI insights into actionable intelligence...';
       case 'complete': return 'Risk assessment and recommendations ready';
       case 'error': return 'An error occurred during classification';

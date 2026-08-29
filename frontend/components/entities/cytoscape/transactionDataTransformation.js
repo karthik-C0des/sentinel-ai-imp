@@ -152,7 +152,7 @@ export const transformTransactionNetworkToCytoscape = (networkData, centerEntity
       avgAmount: edge.avg_amount || 0,
       avgRiskScore: avgRiskScore,
       primaryTransactionType: primaryType,
-      currency: edge.currency || 'USD',
+      currency: edge.currency || 'INR',
       
       // Temporal data
       latestTransaction: edge.latest_transaction,
@@ -357,8 +357,8 @@ const getRiskLevelText = (score) => {
 /**
  * Formatting helper functions
  */
-const formatCurrency = (amount, currency = 'USD') => {
-  return new Intl.NumberFormat('en-US', {
+const formatCurrency = (amount, currency = 'INR') => {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency,
     notation: 'compact',

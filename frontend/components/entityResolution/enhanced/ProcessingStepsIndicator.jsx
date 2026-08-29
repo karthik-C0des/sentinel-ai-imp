@@ -26,35 +26,35 @@ const PROCESSING_STEPS = {
       title: 'Entity Validation',
       description: 'Validating entity input data and preparing for search',
       icon: 'Checkmark',
-      estimatedTime: 300
+      estimatedTime: 50
     },
     {
       id: 'atlas_search',
       title: 'Atlas Text Search',
       description: 'Performing MongoDB Atlas Search with fuzzy text matching',
       icon: 'MagnifyingGlass',
-      estimatedTime: 1200
+      estimatedTime: 100
     },
     {
       id: 'vector_search',
       title: 'Vector Similarity Search',
       description: 'Running semantic vector search for entity matching',
       icon: 'Diagram2',
-      estimatedTime: 1500
+      estimatedTime: 100
     },
     {
       id: 'hybrid_search',
       title: 'Hybrid Search ($rankFusion)',
       description: 'Combining Atlas and Vector search using MongoDB $rankFusion',
       icon: 'Connect',
-      estimatedTime: 800
+      estimatedTime: 100
     },
     {
       id: 'results_processing',
       title: 'Results Processing',
       description: 'Processing and ranking search results for display',
       icon: 'Charts',
-      estimatedTime: 600
+      estimatedTime: 50
     }
   ],
 
@@ -64,35 +64,35 @@ const PROCESSING_STEPS = {
       title: 'Entity Selection',
       description: 'Selecting top 3 hybrid search matches for comprehensive analysis',
       icon: 'Checkmark',
-      estimatedTime: 500
+      estimatedTime: 50
     },
     {
       id: 'relationship_networks',
       title: 'Relationship Networks',
       description: 'Fetching relationship networks with depth 2 traversal',
       icon: 'Connect',
-      estimatedTime: 2000
+      estimatedTime: 100
     },
     {
       id: 'transaction_networks',
       title: 'Transaction Networks', 
       description: 'Analyzing transaction patterns with depth 1 analysis',
       icon: 'Charts',
-      estimatedTime: 1500
+      estimatedTime: 100
     },
     {
       id: 'risk_calculation',
       title: 'Risk Assessment',
       description: 'Calculating network and transaction risk scores using MongoDB aggregations',
       icon: 'Warning',
-      estimatedTime: 1000
+      estimatedTime: 100
     },
     {
       id: 'data_transformation',
       title: 'Data Preparation',
       description: 'Preparing network visualization data for interactive display',
       icon: 'Diagram3',
-      estimatedTime: 800
+      estimatedTime: 50
     }
   ],
   
@@ -102,42 +102,42 @@ const PROCESSING_STEPS = {
       title: 'Data Preparation',
       description: 'Structuring complete workflow data for AI analysis',
       icon: 'Database',
-      estimatedTime: 300
+      estimatedTime: 50
     },
     {
       id: 'prompt_building',
       title: 'Prompt Engineering',
       description: 'Building comprehensive analysis prompt with entity, search, and network data',
       icon: 'Edit',
-      estimatedTime: 500
+      estimatedTime: 100
     },
     {
       id: 'bedrock_connection',
       title: 'AWS Bedrock Connection',
       description: 'Connecting to AWS Bedrock Claude Haiku 4.5 model',
       icon: 'Cloud',
-      estimatedTime: 800
+      estimatedTime: 100
     },
     {
       id: 'ai_analysis',
       title: 'AI Risk Analysis',
       description: 'AI analyzing AML/KYC compliance, network positioning, and data quality',
       icon: 'Bulb',
-      estimatedTime: 25000  // This is the longest step
+      estimatedTime: 1000  // This is the longest step, but we shouldn't force 25s
     },
     {
       id: 'response_processing',
       title: 'Response Processing',
       description: 'Processing AI recommendations and risk assessment results',
       icon: 'Checkmark',
-      estimatedTime: 600
+      estimatedTime: 100
     },
     {
       id: 'validation',
       title: 'Validation & Structuring',
       description: 'Validating classification results and preparing for display',
       icon: 'CheckmarkWithCircle',
-      estimatedTime: 400
+      estimatedTime: 50
     }
   ],
 
@@ -147,42 +147,42 @@ const PROCESSING_STEPS = {
       title: 'Case ID Generation',
       description: 'Generating unique case identifier and initializing investigation',
       icon: 'Person',
-      estimatedTime: 200
+      estimatedTime: 50
     },
     {
       id: 'workflow_data_consolidation',
       title: 'Workflow Data Consolidation',
       description: 'Consolidating entity input, search results, network analysis, and classification data',
       icon: 'Database',
-      estimatedTime: 400
+      estimatedTime: 100
     },
     {
       id: 'investigation_prompt_building',
       title: 'Investigation Prompt Building',
       description: 'Building comprehensive investigation prompt for professional case summary',
       icon: 'Edit',
-      estimatedTime: 600
+      estimatedTime: 100
     },
     {
       id: 'llm_summary_generation',
       title: 'LLM Summary Generation',
       description: 'Generating professional investigation summary using Claude Haiku 4.5',
       icon: 'Bulb',
-      estimatedTime: 15000  // Main LLM processing step
+      estimatedTime: 1000  // Main LLM processing step
     },
     {
       id: 'mongodb_document_creation',
       title: 'MongoDB Document Creation',
       description: 'Creating complete case document structure with workflow data and investigation results',
       icon: 'Folder',
-      estimatedTime: 800
+      estimatedTime: 100
     },
     {
       id: 'case_finalization',
       title: 'Case Finalization',
       description: 'Finalizing case investigation and preparing for display',
       icon: 'Checkmark',
-      estimatedTime: 300
+      estimatedTime: 50
     }
   ]
 };

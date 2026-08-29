@@ -470,7 +470,7 @@ function TransactionSimulator() {
       transaction_id: `tx-${Date.now()}`,
       timestamp: new Date().toISOString(),
       amount: parseFloat(amount),
-      currency: 'USD',
+      currency: 'INR',
       merchant: {
         name: generatedMerchantName,
         category: merchantCategory,
@@ -493,7 +493,7 @@ function TransactionSimulator() {
     
     // Format transaction details as structured text to match backend format
     const text = `
-Amount: ${transactionData.amount || 0} ${transactionData.currency || 'USD'}
+Amount: ${transactionData.amount || 0} ${transactionData.currency || 'INR'}
 Merchant: ${transactionData.merchant?.name || 'N/A'}
 Merchant Category: ${transactionData.merchant?.category || 'N/A'}
 Transaction Type: ${transactionData.transaction_type || 'N/A'}
@@ -864,7 +864,7 @@ Device: ${transactionData.device_info?.type || 'N/A'}, ${transactionData.device_
                             }}
                           >
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: spacing[2] }}>
-                              <H3>${trans.amount} {trans.transaction_type} at {trans.merchant?.category}</H3>
+                              <H3>₹{trans.amount} {trans.transaction_type} at {trans.merchant?.category}</H3>
                               {trans.score && (
                                 <div style={{ 
                                   background: palette.blue.light2, 
@@ -1066,7 +1066,7 @@ Device: ${transactionData.device_info?.type || 'N/A'}, ${transactionData.device_
                 </div>
                 <div>
                   <Body weight="medium" size="small">Avg. Transaction</Body>
-                  <Body>${selectedCustomer.behavioral_profile?.transaction_patterns?.avg_transaction_amount.toFixed(2)}</Body>
+                  <Body>₹{selectedCustomer.behavioral_profile?.transaction_patterns?.avg_transaction_amount.toFixed(2)}</Body>
                 </div>
               </div>
               
@@ -1211,10 +1211,10 @@ Device: ${transactionData.device_info?.type || 'N/A'}, ${transactionData.device_
             {/* Amount */}
             <div className={styles.formField}>
               <div className={styles.narrowInput} style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 0 }}>$</div>
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 0 }}>₹</div>
                 <TextInput
                   id="amount"
-                  label="Amount (USD)"
+                  label="Amount (INR)"
                   onChange={e => setAmount(parseFloat(e.target.value) || 0)}
                   value={amount.toString()}
                   type={TextInputType.Number}
@@ -1233,9 +1233,9 @@ Device: ${transactionData.device_info?.type || 'N/A'}, ${transactionData.device_
                   gap: spacing[1]
                 }}>
                   <Icon glyph="InfoWithCircle" fill={palette.blue.base} size="small" />
-                  Avg: ${selectedCustomer.behavioral_profile.transaction_patterns.avg_transaction_amount.toFixed(2)}
+                  Avg: ₹{selectedCustomer.behavioral_profile.transaction_patterns.avg_transaction_amount.toFixed(2)}
                   {selectedCustomer.behavioral_profile.transaction_patterns.std_transaction_amount && 
-                    ` (±$${selectedCustomer.behavioral_profile.transaction_patterns.std_transaction_amount.toFixed(2)})`}
+                    ` (±₹${selectedCustomer.behavioral_profile.transaction_patterns.std_transaction_amount.toFixed(2)})`}
                 </Body>
               )}
             </div>
