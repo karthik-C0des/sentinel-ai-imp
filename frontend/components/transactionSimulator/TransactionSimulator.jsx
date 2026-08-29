@@ -1,0 +1,1620 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import axios from 'axios';
+import Card from '@leafygreen-ui/card';
+import Button from '@leafygreen-ui/button';
+import { Select, Option } from '@leafygreen-ui/select';
+import Toggle from '@leafygreen-ui/toggle';
+import Banner from '@leafygreen-ui/banner';
+import Badge from '@leafygreen-ui/badge';
+import { Table, TableBody, TableHead, HeaderRow, HeaderCell, Row, Cell, useLeafyGreenTable, flexRender } from '@leafygreen-ui/table';
+import { Body, H1, H2, H3, Subtitle, InlineCode, InlineKeyCode, Disclaimer, Error as ErrorText, Label, Description, BackLink } from '@leafygreen-ui/typography';
+import { Tabs, Tab } from '@leafygreen-ui/tabs';
+import Tooltip from '@leafygreen-ui/tooltip';
+import Icon from '@leafygreen-ui/icon';
+import IconButton from '@leafygreen-ui/icon-button';
+import TextInput, { State, SizeVariant, TextInputType } from '@leafygreen-ui/text-input';
+import { RadioGroup, Radio } from '@leafygreen-ui/radio-group';
+import RadioBox from '@leafygreen-ui/radio-box-group';
+import Modal from '@leafygreen-ui/modal';
+import { Spinner } from '@leafygreen-ui/loading-indicator';
+import { 
+  ParagraphSkeleton, 
+  CardSkeleton, 
+  TableSkeleton, 
+  FormSkeleton 
+} from '@leafygreen-ui/skeleton-loader';
+import Callout from '@leafygreen-ui/callout';
+import Popover from '@leafygreen-ui/popover';
+import Code from '@leafygreen-ui/code';
+import { palette } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
+import ExpandableCard from '@leafygreen-ui/expandable-card';
+import VectorSearchCalculationBreakdown from '../vectorSearch/VectorSearchCalculationBreakdown';
+import styles from './TransactionSimulator.module.css';
+
+
+// Constants for predefined scenarios
+const SCENARIOS = {
+  NORMAL: 'normal',
+  AMOUNT_ANOMALY: 'unusual_amount',
+  LOCATION_ANOMALY: 'unusual_location',
+  DEVICE_ANOMALY: 'unknown_device',
+  MULTI_FLAG: 'multiple_flags'
+};
+
+const TRANSACTION_TYPES = [
+  { value: 'purchase', label: 'Purchase' },
+  { value: 'withdrawal', label: 'Withdrawal' },
+  { value: 'transfer', label: 'Transfer' },
+  { value: 'deposit', label: 'Deposit' }
+];
+
+const PAYMENT_METHODS = [
+  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'debit_card', label: 'Debit Card' },
+  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'digital_wallet', label: 'Digital Wallet' }
+];
+
+const MERCHANT_CATEGORIES = [
+  { value: 'retail', label: 'Retail' },
+  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'travel', label: 'Travel' },
+  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'utilities', label: 'Utilities' },
+  { value: 'gas', label: 'Gas' },
+  { value: 'grocery', label: 'Grocery' },
+  { value: 'money_transfer', label: 'Money Transfer' }
+];
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// Tab IDs for the results modal
+const TAB_VECTOR_SEARCH = 0;
+
+function TransactionSimulator() {
+  const searchParams = useSearchParams();
+  const entityIdFromUrl = searchParams?.get('entityId');
+
+  // State variables
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedScenario, setSelectedScenario] = useState(SCENARIOS.NORMAL);
+  const [transactionType, setTransactionType] = useState('purchase');
+  const [paymentMethod, setPaymentMethod] = useState('credit_card');
+  const [amount, setAmount] = useState(50);
+  const [merchantCategory, setMerchantCategory] = useState('retail');
+  const [useCommonLocation, setUseCommonLocation] = useState(true);
+  const [customLocation, setCustomLocation] = useState({
+    city: '',
+    state: '',
+    country: '',
+    coordinates: {
+      type: 'Point',
+      coordinates: [0, 0]
+    }
+  });
+  const [useExistingDevice, setUseExistingDevice] = useState(true);
+  const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(0);
+  const [customDevice, setCustomDevice] = useState({
+    device_id: '',
+    type: 'mobile',
+    os: 'iOS',
+    browser: 'Safari',
+    ip: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [results, setResults] = useState(null);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [activeTab, setActiveTab] = useState(TAB_VECTOR_SEARCH);
+  const [similarTransactions, setSimilarTransactions] = useState([]);
+  const [similarityRiskScore, setSimilarityRiskScore] = useState(0);
+  const [showCustomerJson, setShowCustomerJson] = useState(false);
+  const [hoveredButton, setHoveredButton] = useState(false);
+
+  // Map a customer document from the fraud backend's GET /customers/ into the shape
+  // this component renders. The stored document is camelCase (identification,
+  // identifiers, riskProfile, behavioralProfile); the snake_case keys below are this
+  // component's internal shape, kept so the render code stays untouched.
+  //
+  // Replaces the previous mapEntityToCustomer, which read the AML backend's /entities/
+  // response on the old fsi-threatsight360 database.
+  const mapCustomer = (doc) => {
+    const identification = doc.identification || {};
+    const behavioral = doc.behavioralProfile || {};
+    const fullName = identification.legalName
+      || [identification.firstName, identification.lastName].filter(Boolean).join(' ')
+      || 'Unknown';
+
+    return {
+      // The unmapped document as returned by GET /customers/ — what the MongoDB Document
+      // panel renders, so it shows the stored camelCase shape rather than this mapping.
+      _raw: doc,
+      // customerId is what the backend resolves on, so it is what the dropdown carries
+      // and what gets posted back as customer_id.
+      _id: doc.customerId,
+      personal_info: {
+        name: fullName
+      },
+      account_info: {
+        account_number: doc.identifiers?.find(i => i.type === 'accountNumber')?.value
+          || doc.customerId
+      },
+      behavioral_profile: doc.behavioralProfile ? {
+        devices: behavioral.devices || [],
+        transaction_patterns: behavioral.transaction_patterns || {},
+        location_patterns: behavioral.location_patterns || []
+      } : null,
+      risk_profile: {
+        // riskProfile.overall.score is on a 0-100 scale (the old entities payload was 0-1,
+        // hence the *100 this replaces), clamped to 100 by the SD-1 transform because the
+        // backend's _calculate_risk_score weights it as 0-100. Rendered as-is.
+        overall_risk_score: doc.riskProfile?.overall?.score ?? 0
+      }
+    };
+  };
+
+  // Fetch customers and initial data
+  useEffect(() => {
+    async function fetchInitialData() {
+      try {
+        setInitialLoading(true);
+
+        // The fraud backend owns `customers` and is already pointed at leafy_bank_bian.
+        // The AML backend still defaults to the old fsi-threatsight360 database, so
+        // reading the picker from there would hand this backend ids it cannot resolve.
+        const limit = 50;
+        const skip = 0;
+
+        // No sort/filter params: GET /customers/ defaults to createdAt descending, which is
+        // how the AML endpoint this picker used to read ordered its results. That gives the
+        // same list the deployed demo shows — Noémi Rosario, Colin Stone, and the rest of
+        // the AML-sourced parties, newest first.
+        console.log('Fetching customers from:', `${API_BASE_URL}/customers/`, { skip, limit });
+
+        // Fetch the customer list and, if the URL names one, that customer too
+        const fetchPromises = [
+          axios.get(`${API_BASE_URL}/customers/`, {
+            params: {
+              skip: skip,
+              limit: limit
+            }
+          })
+        ];
+
+        if (entityIdFromUrl) {
+          console.log('Also fetching specific customer from URL:', entityIdFromUrl);
+          fetchPromises.push(
+            axios.get(`${API_BASE_URL}/customers/${encodeURIComponent(entityIdFromUrl)}`)
+              .catch(err => {
+                console.warn('Failed to fetch specific customer:', entityIdFromUrl, err.response?.status);
+                return null; // Return null on error so Promise.all doesn't fail
+              })
+          );
+        }
+        
+        const results = await Promise.all(fetchPromises);
+        const response = results[0];
+        const specificEntityResponse = results[1];
+
+        // GET /customers/ returns a bare array
+        const fetched = Array.isArray(response.data) ? response.data : [];
+        console.log('Fetched customers:', fetched.length);
+
+        if (!Array.isArray(response.data)) {
+          console.error('Expected an array of customers, got:', typeof response.data, response.data);
+          setError('Invalid response format from customers API');
+          setInitialLoading(false);
+          return;
+        }
+
+        if (fetched.length === 0) {
+          console.warn('No customers returned from API');
+          setError('No customers found. Please ensure customers exist in the database.');
+          setInitialLoading(false);
+          return;
+        }
+
+        // Scenario sampling, as the og picker did it: max 2 per scenarioKey, so a run of
+        // near-duplicate parties from one entity-resolution set does not crowd out the rest.
+        // The key moved in the migration — it is `screening.scenarioKey` on a customer
+        // document, not top-level as it was on an AML entity. Reading the old path is what
+        // collapsed every party into one "unknown" bucket and capped the dropdown at 2.
+        // Object key order is first-appearance order, so the createdAt sort survives this.
+        const scenarioGroups = {};
+        fetched.forEach(doc => {
+          const scenarioKey = doc.screening?.scenarioKey || 'unknown';
+          if (!scenarioGroups[scenarioKey]) {
+            scenarioGroups[scenarioKey] = [];
+          }
+          scenarioGroups[scenarioKey].push(doc);
+        });
+
+        const sampled = [];
+        Object.keys(scenarioGroups).forEach(scenarioKey => {
+          sampled.push(...scenarioGroups[scenarioKey].slice(0, 2));
+        });
+        console.log('Sampled customers by scenario:', sampled.length, 'from', Object.keys(scenarioGroups).length, 'scenarios');
+
+        const mappedEntities = sampled.map(mapCustomer);
+        console.log('Mapped customers:', mappedEntities.length);
+
+        // Handle specific customer from URL if fetched
+        let specificEntity = null;
+        if (specificEntityResponse && specificEntityResponse.data) {
+          const entityData = specificEntityResponse.data?.data || specificEntityResponse.data;
+          specificEntity = mapCustomer(entityData);
+          console.log('Fetched specific customer from URL:', specificEntity._id, specificEntity.personal_info.name);
+          
+          // Check if the specific entity is already in mappedEntities
+          const alreadyExists = mappedEntities.some(e => e._id === specificEntity._id);
+          if (!alreadyExists) {
+            console.log('Specific entity not in sampled list, prepending it');
+            mappedEntities.unshift(specificEntity); // Add to beginning of list
+          } else {
+            console.log('Specific entity already in sampled list');
+          }
+        }
+        
+        if (mappedEntities.length === 0) {
+          console.error('No customers available after mapping');
+          setError('No customers found. Please ensure customers exist in the database.');
+          setInitialLoading(false);
+          return;
+        }
+        
+        setCustomers(mappedEntities);
+        if (mappedEntities.length > 0) {
+          // If we have a specific entity from URL, use it; otherwise use first entity
+          let entityToSelect = specificEntity || mappedEntities[0];
+          
+          // Double-check if entityId from URL exists in the list (in case fetch failed but it's in sampled list)
+          if (!specificEntity && entityIdFromUrl) {
+            const foundEntity = mappedEntities.find(
+              entity => entity._id === entityIdFromUrl
+            );
+            if (foundEntity) {
+              entityToSelect = foundEntity;
+              console.log('Pre-selected entity from URL (found in sampled list):', entityIdFromUrl);
+            } else {
+              console.warn('Customer ID from URL not found in loaded customers:', entityIdFromUrl);
+            }
+          } else if (specificEntity) {
+            console.log('Pre-selected specific entity from URL:', specificEntity._id);
+          }
+          
+          setSelectedCustomer(entityToSelect);
+          // Set initial amount based on entity's average
+          if (entityToSelect.behavioral_profile?.transaction_patterns?.avg_transaction_amount) {
+            setAmount(Math.round(entityToSelect.behavioral_profile.transaction_patterns.avg_transaction_amount));
+          }
+          
+          // Set initial merchant category from entity's common categories
+          if (entityToSelect.behavioral_profile?.transaction_patterns?.common_merchant_categories?.length > 0) {
+            setMerchantCategory(entityToSelect.behavioral_profile.transaction_patterns.common_merchant_categories[0]);
+          }
+        }
+        setInitialLoading(false);
+      } catch (err) {
+        console.error('Error fetching customers:', err);
+        console.error('Error details:', err.response?.data || err.message);
+        setError(`Failed to load customers: ${err.response?.data?.detail || err.message}`);
+        setInitialLoading(false);
+      }
+    }
+
+    fetchInitialData();
+  }, [entityIdFromUrl]);
+
+  // Handle customer selection
+  const handleCustomerChange = (customerId) => {
+    const customer = customers.find(c => c._id === customerId);
+    setSelectedCustomer(customer);
+    
+    // Update amount based on selected customer's average
+    if (customer.behavioral_profile && 
+        customer.behavioral_profile.transaction_patterns) {
+      setAmount(Math.round(customer.behavioral_profile.transaction_patterns.avg_transaction_amount));
+    }
+    
+    // Update merchant category from customer's common categories
+    if (customer.behavioral_profile?.transaction_patterns?.common_merchant_categories?.length > 0) {
+      setMerchantCategory(customer.behavioral_profile.transaction_patterns.common_merchant_categories[0]);
+    }
+    
+    // Reset device selection
+    setSelectedDeviceIndex(0);
+  };
+
+  // Handle scenario selection
+  const handleScenarioChange = (scenario) => {
+    setSelectedScenario(scenario);
+    
+    if (selectedCustomer) {
+      const avgAmount = selectedCustomer.behavioral_profile?.transaction_patterns?.avg_transaction_amount || 50;
+      const stdAmount = selectedCustomer.behavioral_profile?.transaction_patterns?.std_transaction_amount || 10;
+      
+      // Adjust settings based on selected scenario
+      switch (scenario) {
+        case SCENARIOS.NORMAL:
+          setAmount(Math.round(avgAmount));
+          setUseCommonLocation(true);
+          setUseExistingDevice(true);
+          break;
+        case SCENARIOS.AMOUNT_ANOMALY:
+          // Set amount to a much more unusual value - 10x the average or at least 5 standard deviations, whichever is higher
+          const unusualAmount = Math.max(
+            avgAmount * 10,
+            avgAmount + (stdAmount * 5)
+          );
+          setAmount(Math.round(unusualAmount));
+          setUseCommonLocation(true);
+          setUseExistingDevice(true);
+          break;
+        case SCENARIOS.LOCATION_ANOMALY:
+          setAmount(Math.round(avgAmount));
+          setUseCommonLocation(false);
+          setCustomLocation({
+            city: 'Unknown City',
+            state: 'Unknown State',
+            country: 'Unknown Country',
+            coordinates: {
+              type: 'Point',
+              coordinates: [180, 0] // Far away location
+            }
+          });
+          setUseExistingDevice(true);
+          break;
+        case SCENARIOS.DEVICE_ANOMALY:
+          setAmount(Math.round(avgAmount));
+          setUseCommonLocation(true);
+          setUseExistingDevice(false);
+          setCustomDevice({
+            device_id: `new-device-${Date.now()}`,
+            type: 'desktop',
+            os: 'Windows',
+            browser: 'Chrome',
+            ip: '203.0.113.1' // Example IP
+          });
+          break;
+        case SCENARIOS.MULTI_FLAG:
+          // Set amount to extreme value just like in the amount anomaly scenario
+          const multiUnusualAmount = Math.max(
+            avgAmount * 10,
+            avgAmount + (stdAmount * 5)
+          );
+          setAmount(Math.round(multiUnusualAmount));
+          
+          // Set unusual location
+          setUseCommonLocation(false);
+          setCustomLocation({
+            city: 'Unknown City',
+            state: 'Unknown State',
+            country: 'Unknown Country',
+            coordinates: {
+              type: 'Point',
+              coordinates: [180, 0] // Far away location
+            }
+          });
+          
+          // Set unknown device
+          setUseExistingDevice(false);
+          setCustomDevice({
+            device_id: `new-device-${Date.now()}`,
+            type: 'desktop',
+            os: 'Windows',
+            browser: 'Chrome',
+            ip: '203.0.113.1' // Example IP
+          });
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  // Prepare transaction data for submission
+  const prepareTransactionData = () => {
+    if (!selectedCustomer) return null;
+    
+    // Get location data
+    let locationData;
+    if (useCommonLocation && selectedCustomer.behavioral_profile?.transaction_patterns?.usual_transaction_locations?.length > 0) {
+      const commonLocation = selectedCustomer.behavioral_profile.transaction_patterns.usual_transaction_locations[0];
+      locationData = {
+        city: commonLocation.city,
+        state: commonLocation.state,
+        country: commonLocation.country,
+        coordinates: commonLocation.location
+      };
+    } else if (useCommonLocation && selectedCustomer.behavioral_profile?.location_patterns?.length > 0) {
+      // Fallback to location_patterns if usual_transaction_locations not available
+      const commonLocation = selectedCustomer.behavioral_profile.location_patterns[0];
+      locationData = {
+        city: commonLocation.city,
+        state: commonLocation.state,
+        country: commonLocation.country,
+        coordinates: commonLocation.location
+      };
+    } else {
+      locationData = customLocation;
+    }
+    
+    // Get device data
+    let deviceData;
+    if (useExistingDevice && selectedCustomer.behavioral_profile?.devices?.length > 0) {
+      const device = selectedCustomer.behavioral_profile.devices[selectedDeviceIndex % selectedCustomer.behavioral_profile.devices.length];
+      deviceData = {
+        device_id: device.device_id,
+        type: device.type,
+        os: device.os,
+        browser: device.browser,
+        ip: device.ip_range?.[0] || '127.0.0.1'
+      };
+    } else {
+      deviceData = customDevice;
+    }
+    
+    // Generate merchant name based on category
+    const generatedMerchantName = `${merchantCategory.charAt(0).toUpperCase() + merchantCategory.slice(1)} Store`;
+    
+    // Prepare transaction data
+    return {
+      customer_id: selectedCustomer._id,
+      transaction_id: `tx-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      amount: parseFloat(amount),
+      currency: 'USD',
+      merchant: {
+        name: generatedMerchantName,
+        category: merchantCategory,
+        id: `m-${Date.now().toString(36)}`
+      },
+      location: locationData,
+      device_info: deviceData,
+      transaction_type: transactionType,
+      payment_method: paymentMethod,
+      status: 'completed'
+    };
+  };
+
+  // Submit transaction for evaluation
+  // Generate a descriptive text of the transaction for embedding
+  // This must match the format used for stored transaction embeddings (excluding Transaction ID and risk fields)
+  const generateTransactionDescription = (transaction, riskAssessment) => {
+    const transactionData = prepareTransactionData();
+    if (!transactionData) return '';
+    
+    // Format transaction details as structured text to match backend format
+    const text = `
+Amount: ${transactionData.amount || 0} ${transactionData.currency || 'USD'}
+Merchant: ${transactionData.merchant?.name || 'N/A'}
+Merchant Category: ${transactionData.merchant?.category || 'N/A'}
+Transaction Type: ${transactionData.transaction_type || 'N/A'}
+Payment Method: ${transactionData.payment_method || 'N/A'}
+Location: ${transactionData.location?.city || 'N/A'}, ${transactionData.location?.state || 'N/A'}, ${transactionData.location?.country || 'N/A'}
+Device: ${transactionData.device_info?.type || 'N/A'}, ${transactionData.device_info?.os || 'N/A'}, ${transactionData.device_info?.browser || 'N/A'}
+    `.trim();
+    
+    return text;
+  };
+
+  const handleSubmitTransaction = async () => {
+    const transactionData = prepareTransactionData();
+    if (!transactionData) {
+      setError('Cannot create transaction: No customer selected');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Log the transaction data for debugging
+      console.log('Transaction data being sent:', JSON.stringify(transactionData));
+      
+      // Call the API to evaluate the transaction
+      const response = await axios.post(`${API_BASE_URL}/transactions/evaluate`, transactionData);
+      console.log('Transaction evaluation response:', JSON.stringify(response.data));
+      
+      // Extract similar transactions and similarity risk score
+      const similarTransData = response.data.similar_transactions || [];
+      const simRiskScore = response.data.similarity_risk_score || 0;
+      
+      // Update state with similar transactions data
+      setSimilarTransactions(similarTransData);
+      setSimilarityRiskScore(simRiskScore);
+      
+      setResults(response.data);
+      setShowResultsModal(true);
+    } catch (err) {
+      console.error('Error evaluating transaction:', err);
+      console.error('Error details:', err.response?.data || err.message);
+      setError('Failed to evaluate transaction. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // No longer needed: Submit and store transaction function has been removed
+
+  // Render risk level indicator
+  const renderRiskLevelIndicator = (level) => {
+    let color;
+    let icon;
+    
+    switch (level) {
+      case 'low':
+        color = palette.green.dark1;
+        icon = <Icon glyph="CheckmarkWithCircle" fill={color} />;
+        break;
+      case 'medium':
+        color = palette.yellow.dark2;
+        icon = <Icon glyph="Warning" fill={color} />;
+        break;
+      case 'high':
+        color = palette.red.base;
+        icon = <Icon glyph="Warning" fill={color} />;
+        break;
+      default:
+        color = palette.gray.dark1;
+        icon = <Icon glyph="InfoWithCircle" fill={color} />;
+    }
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1] }}>
+        {icon}
+        <Body style={{ color, fontWeight: 'bold', textTransform: 'uppercase' }}>
+          {level}
+        </Body>
+      </div>
+    );
+  };
+
+  // Render results modal
+  const renderResultsModal = () => {
+    if (!results && !loading) return null;
+    
+    // Show skeleton loading state when loading
+    if (loading && showResultsModal) {
+      return (
+        <Modal
+          open={showResultsModal}
+          setOpen={setShowResultsModal}
+          size="large"
+          title="Transaction Risk Assessment"
+          className={styles.modalOverride}
+        >
+          <div style={{ padding: spacing[3] }}>
+            <Tabs
+              selected={activeTab}
+              setSelected={setActiveTab}
+              aria-label="Transaction assessment tabs"
+            >
+              <Tab name="Vector Search Fraud Assessment">
+                <div style={{ marginTop: spacing[3] }}>
+                  <CardSkeleton style={{ height: '500px' }} />
+                </div>
+              </Tab>
+            </Tabs>
+          </div>
+        </Modal>
+      );
+    }
+    
+    // If results are not loaded yet, don't attempt to render content
+    if (!results) {
+      return null;
+    }
+    
+    const risk = results?.risk_assessment || {};
+    const transaction = results?.transaction || {};
+    
+    return (
+      <Modal
+        open={showResultsModal}
+        setOpen={setShowResultsModal}
+        size="large"
+        title="Transaction Risk Assessment"
+        className={styles.modalOverride}
+      >
+        <div style={{ padding: spacing[3] }}>
+          <Tabs
+            selected={activeTab}
+            setSelected={setActiveTab}
+            aria-label="Transaction assessment tabs"
+          >
+            <Tab name="Vector Search Fraud Assessment">
+              <div style={{ marginTop: spacing[3] }}>
+                <Card>
+                  <div style={{ marginBottom: spacing[3] }}>
+                    <H3>Vector Search Fraud Analysis</H3>
+                    <Body style={{ marginTop: spacing[1] }}>
+                      Using MongoDB Vector Search to analyze semantically similar transactions for fraud detection. Only behavioral features are embedded using a sentence transformer embedding model. Transaction amount is used separately for risk scoring.
+                    </Body>
+                  </div>
+                  
+                  {/* Informational callout explaining feature separation */}
+                  <Callout 
+                    variant="note" 
+                    style={{ marginBottom: spacing[3] }}
+                  >
+                    <Body weight="medium" style={{ marginBottom: spacing[1] }}>
+                      How Vector Search Works
+                    </Body>
+                    <Body size="small">
+                      <strong>Behavioral features</strong> (merchant category, transaction type, payment method, location, device) are converted to embeddings using an embedding model. These embeddings capture semantic patterns and behavioral similarities. <strong>Transaction amount</strong> is a structured numeric value and is excluded from embedding but used separately for risk scoring calculations.
+                    </Body>
+                  </Callout>
+                  
+                  {/* Vector search representation */}
+                  <div style={{ marginBottom: spacing[3] }}>
+                    <Subtitle>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1] }}>
+                        <Icon glyph="Diagram" fill={palette.blue.base} />
+                        Vector Embedding Process
+                      </div>
+                    </Subtitle>
+                    
+                    {/* Feature separation: Behavioral vs Structured */}
+                    <div style={{ 
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: spacing[3],
+                      marginTop: spacing[2],
+                      marginBottom: spacing[3]
+                    }}>
+                      {/* Behavioral Features Box */}
+                      <div style={{ 
+                        background: palette.green.light3, 
+                        padding: spacing[3], 
+                        borderRadius: '6px',
+                        border: `2px solid ${palette.green.base}`
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1], marginBottom: spacing[2] }}>
+                          <Icon glyph="CheckmarkWithCircle" fill={palette.green.dark2} />
+                          <Body weight="medium" style={{ color: palette.green.dark2 }}>Behavioral Features</Body>
+                        </div>
+                        <div style={{ fontSize: '12px', color: palette.gray.dark2 }}>
+                          <div style={{ marginBottom: spacing[1] }}>• Merchant Category</div>
+                          <div style={{ marginBottom: spacing[1] }}>• Transaction Type</div>
+                          <div style={{ marginBottom: spacing[1] }}>• Payment Method</div>
+                          <div style={{ marginBottom: spacing[1] }}>• Location</div>
+                          <div>• Device Info</div>
+                        </div>
+                      </div>
+                      
+                      {/* Structured Element Box */}
+                      <div style={{ 
+                        background: palette.gray.light2, 
+                        padding: spacing[3], 
+                        borderRadius: '6px',
+                        border: `2px solid ${palette.gray.base}`,
+                        opacity: 0.7
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: spacing[1], marginBottom: spacing[2] }}>
+                          <Icon glyph="X" fill={palette.gray.dark2} />
+                          <Body weight="medium" style={{ color: palette.gray.dark2 }}>Structured Element</Body>
+                        </div>
+                        <div style={{ fontSize: '12px', color: palette.gray.dark2 }}>
+                          <div>• Transaction Amount</div>
+                          <Body size="small" style={{ marginTop: spacing[1], fontStyle: 'italic', color: palette.gray.dark1 }}>
+                            (Excluded from embedding)
+                          </Body>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Flow diagram for behavioral features */}
+                    <div style={{ 
+                      marginTop: spacing[3],
+                      marginBottom: spacing[2]
+                    }}>
+                      <Body weight="medium" style={{ marginBottom: spacing[2], color: palette.green.dark2 }}>
+                        Behavioral Features Flow:
+                      </Body>
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: spacing[2]
+                      }}>
+                        <div style={{ 
+                          background: palette.green.light2, 
+                          padding: spacing[2], 
+                          borderRadius: '4px',
+                          flex: '1 1 150px',
+                          minWidth: '120px'
+                        }}>
+                          <Body size="small" weight="medium" style={{ color: palette.green.dark2 }}>Behavioral Features</Body>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Icon glyph="ArrowRight" fill={palette.green.dark2} />
+                        </div>
+                        
+                        <div style={{ 
+                          background: palette.purple.light2, 
+                          padding: spacing[2], 
+                          borderRadius: '4px',
+                          flex: '1 1 150px',
+                          minWidth: '120px'
+                        }}>
+                          <Body size="small" weight="medium" style={{ color: palette.purple.dark2 }}>Embedding Model</Body>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Icon glyph="ArrowRight" fill={palette.green.dark2} />
+                        </div>
+                        
+                        <div style={{ 
+                          background: palette.blue.light2, 
+                          padding: spacing[2], 
+                          borderRadius: '4px',
+                          flex: '1 1 150px',
+                          minWidth: '120px'
+                        }}>
+                          <Body size="small" weight="medium" style={{ color: palette.blue.dark2 }}>Vector (1536 dimensions)</Body>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Icon glyph="ArrowRight" fill={palette.green.dark2} />
+                        </div>
+                        
+                        <div style={{ 
+                          background: palette.yellow.light2, 
+                          padding: spacing[2], 
+                          borderRadius: '4px',
+                          flex: '1 1 150px',
+                          minWidth: '120px'
+                        }}>
+                          <Body size="small" weight="medium" style={{ color: palette.yellow.dark2 }}>MongoDB Vector Search</Body>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Separate flow for amount */}
+                    <div style={{ 
+                      marginTop: spacing[3],
+                      paddingTop: spacing[3],
+                      borderTop: `1px dashed ${palette.gray.light1}`
+                    }}>
+                      <Body weight="medium" style={{ marginBottom: spacing[2], color: palette.gray.dark2 }}>
+                        Transaction Amount Flow:
+                      </Body>
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        gap: spacing[2],
+                        flexWrap: 'wrap'
+                      }}>
+                        <div style={{ 
+                          background: palette.gray.light2, 
+                          padding: spacing[2], 
+                          borderRadius: '4px',
+                          opacity: 0.7
+                        }}>
+                          <Body size="small" weight="medium" style={{ color: palette.gray.dark2 }}>Amount</Body>
+                        </div>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Icon glyph="ArrowRight" fill={palette.gray.dark2} />
+                        </div>
+                        
+                        <div style={{ 
+                          background: palette.red.light2, 
+                          padding: spacing[2], 
+                          borderRadius: '4px'
+                        }}>
+                          <Body size="small" weight="medium" style={{ color: palette.red.dark2 }}>Risk Scoring (Separate)</Body>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Vector Search Calculation Breakdown — hidden when Bedrock is unavailable */}
+                  {results?.vector_search_calculation?.components?.error
+                    ? (
+                      <div style={{ padding: '10px 14px', borderRadius: '6px', background: '#f9f9f9', border: '1px solid #e8e8e8', color: '#888', fontSize: '13px', marginBottom: spacing[3] }}>
+                        Vector similarity scoring is unavailable (AWS Bedrock not configured). Rule-based fraud scoring above is fully operational.
+                      </div>
+                    )
+                    : (
+                      <VectorSearchCalculationBreakdown
+                        calculationBreakdown={results?.vector_search_calculation}
+                        similarityRiskScore={similarityRiskScore}
+                      />
+                    )
+                  }
+                  
+                  {!results?.vector_search_calculation?.components?.error && <div style={{ marginTop: spacing[4] }}>
+                    {/* Similar transactions list */}
+                    <div>
+                    <Subtitle style={{ marginBottom: spacing[2] }}>
+                      Vector - Matched Transactions:
+                      {results.similar_transactions_count > similarTransactions.length && (
+                        <span style={{ color: palette.gray.dark1, fontWeight: 'normal', fontSize: '14px', marginLeft: spacing[2] }}>
+                          (Showing top {similarTransactions.length} of {results.similar_transactions_count} vector matches)
+                        </span>
+                      )}
+                    </Subtitle>
+                    
+                    {similarTransactions.length > 0 ? (
+                      <div>
+                        {similarTransactions.map((trans, index) => (
+                          <div 
+                            key={trans._id || index} 
+                            style={{ 
+                              padding: spacing[3],
+                              marginBottom: spacing[2],
+                              border: `1px solid ${palette.gray.light2}`,
+                              borderRadius: '4px',
+                              borderLeft: `4px solid ${
+                                trans.risk_assessment?.level === 'high' ? palette.red.base :
+                                trans.risk_assessment?.level === 'medium' ? palette.yellow.base :
+                                palette.green.base
+                              }`
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: spacing[2] }}>
+                              <H3>${trans.amount} {trans.transaction_type} at {trans.merchant?.category}</H3>
+                              {trans.score && (
+                                <div style={{ 
+                                  background: palette.blue.light2, 
+                                  padding: `${spacing[1]}px ${spacing[2]}px`,
+                                  borderRadius: '12px'
+                                }}>
+                                  <Body weight="medium" style={{ color: palette.blue.dark2 }}>
+                                    Vector Similarity: {(trans.score * 100).toFixed(1)}%
+                                  </Body>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[2] }}>
+                              <div>
+                                <Body weight="medium">Date:</Body>
+                                <Body>{trans.timestamp ? new Date(trans.timestamp).toLocaleString() : 'Date not provided'}</Body>
+                              </div>
+                              
+                              <div>
+                                <Body weight="medium">Risk Level:</Body>
+                                <Body>{trans.risk_assessment?.level || 'Unknown'}</Body>
+                              </div>
+                              
+                              <div>
+                                <Body weight="medium">Risk Score:</Body>
+                                <Body>{trans.risk_assessment?.score || 'N/A'}</Body>
+                              </div>
+                              
+                              <div>
+                                <Body weight="medium">Payment Method:</Body>
+                                <Body>{trans.payment_method?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'}</Body>
+                              </div>
+                            </div>
+                            
+                            {trans.risk_assessment?.flags && trans.risk_assessment.flags.length > 0 && (
+                              <div style={{ marginTop: spacing[2] }}>
+                                <Subtitle style={{ fontSize: '14px', marginBottom: spacing[1] }}>Risk Flags:</Subtitle>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: spacing[1] }}>
+                                  {trans.risk_assessment.flags.map((flag, i) => (
+                                    <div 
+                                      key={i}
+                                      style={{ 
+                                        background: palette.gray.light2,
+                                        padding: `${spacing[1]/2}px ${spacing[2]}px`,
+                                        borderRadius: '12px',
+                                        fontSize: '12px'
+                                      }}
+                                    >
+                                      {flag.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ 
+                        padding: spacing[3], 
+                        background: palette.gray.light2, 
+                        borderRadius: '4px',
+                        textAlign: 'center' 
+                      }}>
+                        <Body>No vector matches found in transaction database.</Body>
+                      </div>
+                    )}
+                    </div>
+                  </div>
+                  }
+                </Card>
+              </div>
+            </Tab>
+          </Tabs>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            marginTop: spacing[3],
+            gap: spacing[2]
+          }}>
+            <Button 
+              variant="primary"
+              onClick={() => setShowResultsModal(false)} 
+              leftGlyph={<Icon glyph="X" fill={palette.gray.light3} />}
+              style={{ 
+                backgroundColor: palette.green.dark2, 
+                color: palette.gray.light3
+              }}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  };
+
+  if (initialLoading) {
+    return (
+      <div style={{ padding: spacing[4] }}>
+        <div style={{ marginBottom: spacing[2] }}>
+          <BackLink href="/">Back to Home</BackLink>
+        </div>
+        <H2 style={{ marginBottom: spacing[3] }}>
+          Transaction Simulator
+        </H2>
+        
+        <div style={{ display: 'flex', gap: spacing[3], flexWrap: 'wrap' }}>
+          {/* Customer Selection Card Skeleton */}
+          <CardSkeleton style={{ flex: '1 1 300px', height: '250px', marginBottom: spacing[3] }} />
+          
+          {/* Scenario Selection Card Skeleton */}
+          <CardSkeleton style={{ flex: '1 1 300px', height: '250px', marginBottom: spacing[3] }} />
+        </div>
+        
+        {/* Transaction Details Card Skeleton */}
+        <CardSkeleton style={{ marginBottom: spacing[3], height: '200px' }} />
+        
+        {/* Location Card Skeleton */}
+        <CardSkeleton style={{ marginBottom: spacing[3], height: '150px' }} />
+        
+        {/* Device Card Skeleton */}
+        <CardSkeleton style={{ marginBottom: spacing[3], height: '200px' }} />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ marginBottom: spacing[2] }}>
+        <BackLink href="/">Back to Home</BackLink>
+      </div>
+      <div style={{ marginBottom: spacing[3], display: 'flex', alignItems: 'center', gap: spacing[2] }}>
+        <H2 style={{ margin: 0 }}>
+          Transaction Simulator
+        </H2>
+        <Description style={{ 
+          backgroundColor: palette.blue.light3, 
+          color: palette.blue.dark1, 
+          padding: `${spacing[1]/2}px ${spacing[2]}px`,
+          borderRadius: '4px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: spacing[1],
+          fontSize: '12px'
+        }}>
+          <Icon glyph="Database" fill={palette.blue.base} size="small" />
+          Powered by MongoDB
+        </Description>
+      </div>
+      
+      <div style={{ display: 'flex', gap: spacing[3], flexWrap: 'wrap' }}>
+        {/* Customer Selection Card */}
+        <Card style={{ flex: '1 1 300px', marginBottom: spacing[3] }}>
+          <H3 style={{ marginBottom: spacing[2] }}>
+            Select Customer
+          </H3>
+          
+          <Select
+            label="Entity"
+            placeholder="Select an entity"
+            onChange={handleCustomerChange}
+            value={selectedCustomer?._id}
+          >
+            {customers.map(customer => (
+              <Option key={customer._id} value={customer._id}>
+                {customer.personal_info.name}
+              </Option>
+            ))}
+          </Select>
+          
+          {selectedCustomer ? (
+            <div style={{ marginTop: spacing[3] }}>
+              <Subtitle style={{ marginBottom: spacing[2] }}>
+                Profile Summary
+              </Subtitle>
+              
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
+                gap: spacing[2],
+                marginBottom: spacing[3],
+                padding: spacing[2],
+                background: palette.gray.light2,
+                borderRadius: '4px'
+              }}>
+                <div>
+                  <Body weight="medium" size="small">Account</Body>
+                  <Body>{selectedCustomer.account_info.account_number}</Body>
+                </div>
+                <div>
+                  <Body weight="medium" size="small">Risk Score</Body>
+                  {/* Shown on its own 0-100 scale. The previous /100 rendered a 98-of-100
+                      risk as "0.98", which reads as a probability and made every customer
+                      look low-risk. */}
+                  <Body>{Math.round(selectedCustomer.risk_profile.overall_risk_score)} / 100</Body>
+                </div>
+                <div>
+                  <Body weight="medium" size="small">Avg. Transaction</Body>
+                  <Body>${selectedCustomer.behavioral_profile?.transaction_patterns?.avg_transaction_amount.toFixed(2)}</Body>
+                </div>
+              </div>
+              
+              {/* MongoDB Document View with ExpandableCard */}
+              <ExpandableCard
+                title={
+                  <span style={{ display: 'flex', alignItems: 'center', gap: spacing[1] }}>
+                    <span style={{ color: palette.blue.base, fontSize: '16px' }}>{ '{' }</span>
+                    <span style={{ fontSize: '13px' }}>
+                    MongoDB Document </span>
+                    <span style={{ color: palette.blue.base, fontSize: '16px' }}>{ '}' }</span>
+                  </span>
+                }
+                defaultOpen={showCustomerJson}
+                onClick={() => setShowCustomerJson(!showCustomerJson)}
+                contentClassName={styles.expandableContent}
+              >
+                <div style={{ maxHeight: '300px', overflow: 'auto' }}>
+                  <Code language="json" copyable={true}>
+                    {JSON.stringify(selectedCustomer?._raw ?? selectedCustomer, null, 2)}
+                  </Code>
+                </div>
+              </ExpandableCard>
+            </div>
+          ) : (
+            <div style={{ marginTop: spacing[3] }}>
+              <ParagraphSkeleton withHeader />
+            </div>
+          )}
+        </Card>
+        
+        {/* Scenario Selection Card */}
+        <Card style={{ flex: '1 1 300px', marginBottom: spacing[3] }}>
+          <H3 style={{ marginBottom: spacing[2] }}>
+            Scenario Selection
+          </H3>
+          
+          <RadioGroup
+            onChange={(e) => handleScenarioChange(e.target.value)}
+            value={selectedScenario}
+            name="scenario"
+          >
+            <Radio value={SCENARIOS.NORMAL} id="scenario-normal">
+              Normal Transaction
+            </Radio>
+            <Radio value={SCENARIOS.AMOUNT_ANOMALY} id="scenario-amount">
+              Unusual Amount
+            </Radio>
+            <Radio value={SCENARIOS.LOCATION_ANOMALY} id="scenario-location">
+              Unusual Location
+            </Radio>
+            <Radio value={SCENARIOS.DEVICE_ANOMALY} id="scenario-device">
+              New Device
+            </Radio>
+            <Radio value={SCENARIOS.MULTI_FLAG} id="scenario-multi">
+              Multiple Red Flags
+            </Radio>
+          </RadioGroup>
+          
+          <div style={{ marginTop: spacing[3] }}>
+            <Subtitle style={{ marginBottom: spacing[1] }}>
+              Scenario Description
+            </Subtitle>
+            <Description style={{ color: palette.gray.dark1, marginBottom: spacing[2] }}>
+              {selectedScenario === SCENARIOS.NORMAL && 
+                "A typical transaction within customer's normal patterns and behaviors."}
+              {selectedScenario === SCENARIOS.AMOUNT_ANOMALY && 
+                "Transaction with an unusually high amount compared to customer's average spending."}
+              {selectedScenario === SCENARIOS.LOCATION_ANOMALY && 
+                "Transaction from a location far from customer's usual areas of activity."}
+              {selectedScenario === SCENARIOS.DEVICE_ANOMALY && 
+                "Transaction from a device that hasn't been used by this customer before."}
+              {selectedScenario === SCENARIOS.MULTI_FLAG && 
+                "Transaction with multiple anomalies: unusual amount, location, and device."}
+            </Description>
+          </div>
+        </Card>
+      </div>
+      
+      {/* Transaction Details Card */}
+      <Card style={{ marginBottom: spacing[3] }}>
+        <H3 style={{ marginBottom: spacing[3] }}>
+          Transaction Details
+        </H3>
+        
+        <div>
+          {/* Row 1: Transaction Type and Payment Method */}
+          <div className={styles.formRow} style={{ marginBottom: spacing[3] }}>
+            {/* Transaction Type */}
+            <div className={styles.formField}>
+              <Label htmlFor="transaction-type" style={{ 
+                display: 'block', 
+                marginBottom: spacing[1],
+                color: palette.gray.dark2,
+                fontWeight: 'bold' 
+              }}>
+                Transaction Type
+              </Label>
+              <Select
+                id="transaction-type"
+                label="Transaction Type"
+                onChange={value => setTransactionType(value)}
+                value={transactionType}
+                size="default"
+              >
+                {TRANSACTION_TYPES.map(type => (
+                  <Option key={type.value} value={type.value}>
+                    {type.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            
+            {/* Payment Method */}
+            <div className={styles.formField}>
+              <Label htmlFor="payment-method" style={{ 
+                display: 'block', 
+                marginBottom: spacing[1],
+                color: palette.gray.dark2,
+                fontWeight: 'bold'
+              }}>
+                Payment Method
+              </Label>
+              <Select
+                id="payment-method"
+                label="Payment Method"
+                onChange={value => setPaymentMethod(value)}
+                value={paymentMethod}
+                size="default"
+              >
+                {PAYMENT_METHODS.map(method => (
+                  <Option key={method.value} value={method.value}>
+                    {method.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+          </div>
+          
+          {/* Row 2: Amount and Merchant Category */}
+          <div className={styles.formRow}>
+            {/* Amount */}
+            <div className={styles.formField}>
+              <div className={styles.narrowInput} style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', zIndex: 0 }}>$</div>
+                <TextInput
+                  id="amount"
+                  label="Amount (USD)"
+                  onChange={e => setAmount(parseFloat(e.target.value) || 0)}
+                  value={amount.toString()}
+                  type={TextInputType.Number}
+                  min="1"
+                  step="0.01"
+                  sizeVariant={SizeVariant.Default}
+                  style={{ paddingLeft: '24px', width: '100%' }}
+                />
+              </div>
+              {selectedCustomer?.behavioral_profile?.transaction_patterns && (
+                <Body size="small" style={{ 
+                  color: palette.blue.dark1, 
+                  marginTop: spacing[1],
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[1]
+                }}>
+                  <Icon glyph="InfoWithCircle" fill={palette.blue.base} size="small" />
+                  Avg: ${selectedCustomer.behavioral_profile.transaction_patterns.avg_transaction_amount.toFixed(2)}
+                  {selectedCustomer.behavioral_profile.transaction_patterns.std_transaction_amount && 
+                    ` (±$${selectedCustomer.behavioral_profile.transaction_patterns.std_transaction_amount.toFixed(2)})`}
+                </Body>
+              )}
+            </div>
+            
+            {/* Merchant Category */}
+            <div className={styles.formField}>
+              <Label htmlFor="merchant-category" style={{ 
+                display: 'block', 
+                marginBottom: spacing[1],
+                color: palette.gray.dark2,
+                fontWeight: 'bold'
+              }}>
+                Merchant Category
+              </Label>
+              <Select
+                id="merchant-category"
+                label="Merchant Category"
+                onChange={value => setMerchantCategory(value)}
+                value={merchantCategory}
+                size="default"
+              >
+                {MERCHANT_CATEGORIES.map(category => (
+                  <Option key={category.value} value={category.value}>
+                    {category.label}
+                  </Option>
+                ))}
+              </Select>
+              {selectedCustomer?.behavioral_profile?.transaction_patterns?.common_merchant_categories && (
+                <Body size="small" style={{ 
+                  color: palette.blue.dark1, 
+                  marginTop: spacing[1],
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: spacing[1]
+                }}>
+                  <Icon glyph="InfoWithCircle" fill={palette.blue.base} size="small" />
+                  Common: {selectedCustomer.behavioral_profile.transaction_patterns.common_merchant_categories.join(', ')}
+                </Body>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
+      
+      {/* Location Card */}
+      <Card style={{ marginBottom: spacing[3] }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: spacing[2]
+        }}>
+          <H3>
+            Location
+          </H3>
+          
+          <Toggle
+            onChange={() => setUseCommonLocation(!useCommonLocation)}
+            checked={useCommonLocation}
+            size="small"
+            label="Use Common Location"
+            aria-label="Use Common Location"
+          />
+        </div>
+        
+        {!useCommonLocation ? (
+          <div className={styles.formRow} style={{ 
+            marginTop: spacing[2]
+          }}>
+            <div className={styles.formField}>
+              <Label htmlFor="city" style={{ display: 'block', marginBottom: spacing[1] }}>City</Label>
+              <TextInput
+                id="city"
+                aria-labelledby="city-label"
+                onChange={e => setCustomLocation({...customLocation, city: e.target.value})}
+                value={customLocation.city}
+                type={TextInputType.Text}
+                sizeVariant={SizeVariant.Default}
+                placeholder="Enter city name"
+                className={styles.narrowInput}
+              />
+            </div>
+            
+            <div className={styles.formField}>
+              <Label htmlFor="state" style={{ display: 'block', marginBottom: spacing[1] }}>State/Province</Label>
+              <TextInput
+                id="state"
+                aria-labelledby="state-label"
+                onChange={e => setCustomLocation({...customLocation, state: e.target.value})}
+                value={customLocation.state}
+                type={TextInputType.Text}
+                sizeVariant={SizeVariant.Default}
+                placeholder="Enter state or province"
+                className={styles.narrowInput}
+              />
+            </div>
+            
+            <div className={styles.formField}>
+              <Label htmlFor="country" style={{ display: 'block', marginBottom: spacing[1] }}>Country</Label>
+              <TextInput
+                id="country"
+                aria-labelledby="country-label"
+                onChange={e => setCustomLocation({...customLocation, country: e.target.value})}
+                value={customLocation.country}
+                type={TextInputType.Text}
+                sizeVariant={SizeVariant.Default}
+                placeholder="Enter country name"
+                className={styles.narrowInput}
+              />
+            </div>
+            
+            <div className={styles.formField}>
+              <Label htmlFor="longitude" style={{ display: 'block', marginBottom: spacing[1] }}>Longitude</Label>
+              <TextInput
+                id="longitude"
+                aria-labelledby="longitude-label"
+                onChange={e => setCustomLocation({
+                  ...customLocation, 
+                  coordinates: {
+                    ...customLocation.coordinates,
+                    coordinates: [parseFloat(e.target.value) || 0, customLocation.coordinates.coordinates[1]]
+                  }
+                })}
+                value={customLocation.coordinates.coordinates[0].toString()}
+                type={TextInputType.Number}
+                min="-180"
+                max="180"
+                step="0.000001"
+                sizeVariant={SizeVariant.Default}
+                className={styles.narrowInput}
+              />
+              <Description style={{ fontSize: '12px', marginTop: '4px' }}>Value between -180 and 180</Description>
+            </div>
+            
+            <div className={styles.formField}>
+              <Label htmlFor="latitude" style={{ display: 'block', marginBottom: spacing[1] }}>Latitude</Label>
+              <TextInput
+                id="latitude"
+                aria-labelledby="latitude-label"
+                onChange={e => setCustomLocation({
+                  ...customLocation, 
+                  coordinates: {
+                    ...customLocation.coordinates,
+                    coordinates: [customLocation.coordinates.coordinates[0], parseFloat(e.target.value) || 0]
+                  }
+                })}
+                value={customLocation.coordinates.coordinates[1].toString()}
+                type={TextInputType.Number}
+                min="-90"
+                max="90"
+                step="0.000001"
+                sizeVariant={SizeVariant.Default}
+                className={styles.narrowInput}
+              />
+              <Description style={{ fontSize: '12px', marginTop: '4px' }}>Value between -90 and 90</Description>
+            </div>
+          </div>
+        ) : initialLoading ? (
+          <FormSkeleton />
+        ) : (
+          <div>
+            {selectedCustomer?.behavioral_profile?.transaction_patterns?.usual_transaction_locations?.length > 0 ? (
+              <div>
+                <Subtitle style={{ marginBottom: spacing[1] }}>
+                  Using Entity's Common Location
+                </Subtitle>
+                <Body style={{ color: palette.gray.dark1 }}>
+                  {
+                    selectedCustomer.behavioral_profile.transaction_patterns.usual_transaction_locations[0].city
+                  }, {
+                    selectedCustomer.behavioral_profile.transaction_patterns.usual_transaction_locations[0].state
+                  }, {
+                    selectedCustomer.behavioral_profile.transaction_patterns.usual_transaction_locations[0].country
+                  }
+                </Body>
+              </div>
+            ) : selectedCustomer?.behavioral_profile?.location_patterns?.length > 0 ? (
+              <div>
+                <Subtitle style={{ marginBottom: spacing[1] }}>
+                  Using Entity's Common Location
+                </Subtitle>
+                <Body style={{ color: palette.gray.dark1 }}>
+                  {
+                    selectedCustomer.behavioral_profile.location_patterns[0].city
+                  }, {
+                    selectedCustomer.behavioral_profile.location_patterns[0].state
+                  }, {
+                    selectedCustomer.behavioral_profile.location_patterns[0].country
+                  }
+                </Body>
+              </div>
+            ) : (
+              <Banner variant="warning">
+                No common locations found for this entity. Please enter a custom location.
+              </Banner>
+            )}
+          </div>
+        )}
+      </Card>
+      
+      {/* Device Card */}
+      <Card style={{ marginBottom: spacing[3] }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: spacing[2]
+        }}>
+          <H3>
+            Device
+          </H3>
+          
+          <Toggle
+            onChange={() => setUseExistingDevice(!useExistingDevice)}
+            checked={useExistingDevice}
+            size="small"
+            label="Use Existing Device"
+            aria-label="Use Existing Device"
+          />
+        </div>
+        
+        {useExistingDevice ? (
+          <div>
+            {selectedCustomer?.behavioral_profile?.devices?.length > 0 ? (
+              <div>
+                <Select
+                  label="Select Device"
+                  onChange={(value) => setSelectedDeviceIndex(parseInt(value))}
+                  value={selectedDeviceIndex.toString()}
+                >
+                  {selectedCustomer.behavioral_profile.devices.map((device, index) => (
+                    <Option key={index} value={index.toString()}>
+                      {device.type} - {device.os} ({device.browser})
+                    </Option>
+                  ))}
+                </Select>
+                
+                <div style={{ marginTop: spacing[2] }}>
+                  <Subtitle style={{ marginBottom: spacing[1] }}>
+                    Device Details
+                  </Subtitle>
+                  <Body style={{ color: palette.gray.dark1 }}>
+                    ID: {selectedCustomer.behavioral_profile.devices[selectedDeviceIndex].device_id}
+                  </Body>
+                  <Body style={{ color: palette.gray.dark1 }}>
+                    Type: {selectedCustomer.behavioral_profile.devices[selectedDeviceIndex].type}
+                  </Body>
+                  <Body style={{ color: palette.gray.dark1 }}>
+                    OS: {selectedCustomer.behavioral_profile.devices[selectedDeviceIndex].os}
+                  </Body>
+                  <Body style={{ color: palette.gray.dark1 }}>
+                    Browser: {selectedCustomer.behavioral_profile.devices[selectedDeviceIndex].browser}
+                  </Body>
+                </div>
+              </div>
+            ) : (
+              <Banner variant="warning">
+                No devices found for this customer. Please add a custom device.
+              </Banner>
+            )}
+          </div>
+        ) : (
+          <div className={styles.formRow} style={{ 
+            marginTop: spacing[2]
+          }}>
+            <div className={styles.formField} style={{ marginBottom: spacing[3] }}>
+              <Label htmlFor="device-id" style={{ display: 'block', marginBottom: spacing[1] }}>Device ID</Label>
+              <TextInput
+                id="device-id"
+                aria-labelledby="device-id-label"
+                onChange={e => setCustomDevice({...customDevice, device_id: e.target.value})}
+                value={customDevice.device_id}
+                type={TextInputType.Text}
+                sizeVariant={SizeVariant.Default}
+                placeholder="Enter a unique device identifier"
+                className={styles.narrowInput}
+              />
+            </div>
+            
+            <div className={styles.formField} style={{ marginBottom: spacing[3] }}>
+              <Select
+                id="device-type"
+                label="Device Type"
+                onChange={value => setCustomDevice({...customDevice, type: value})}
+                value={customDevice.type}
+                className={styles.narrowInput}
+              >
+                <Option value="desktop">Desktop</Option>
+                <Option value="laptop">Laptop</Option>
+                <Option value="mobile">Mobile</Option>
+                <Option value="tablet">Tablet</Option>
+              </Select>
+            </div>
+            
+            <div className={styles.formField} style={{ marginBottom: spacing[3] }}>
+              <Select
+                id="device-os"
+                label="Operating System"
+                onChange={value => setCustomDevice({...customDevice, os: value})}
+                value={customDevice.os}
+                className={styles.narrowInput}
+              >
+                <Option value="Windows">Windows</Option>
+                <Option value="macOS">macOS</Option>
+                <Option value="iOS">iOS</Option>
+                <Option value="Android">Android</Option>
+                <Option value="Linux">Linux</Option>
+              </Select>
+            </div>
+            
+            <div className={styles.formField} style={{ marginBottom: spacing[3] }}>
+              <Select
+                id="device-browser"
+                label="Browser"
+                onChange={value => setCustomDevice({...customDevice, browser: value})}
+                value={customDevice.browser}
+                className={styles.narrowInput}
+              >
+                <Option value="Chrome">Chrome</Option>
+                <Option value="Firefox">Firefox</Option>
+                <Option value="Safari">Safari</Option>
+                <Option value="Edge">Edge</Option>
+              </Select>
+            </div>
+            
+            <div className={styles.formField} style={{ marginBottom: spacing[3] }}>
+              <Label htmlFor="device-ip" style={{ display: 'block', marginBottom: spacing[1] }}>IP Address</Label>
+              <TextInput
+                id="device-ip"
+                aria-labelledby="device-ip-label"
+                onChange={e => setCustomDevice({...customDevice, ip: e.target.value})}
+                value={customDevice.ip}
+                placeholder="192.168.1.1"
+                type={TextInputType.Text}
+                sizeVariant={SizeVariant.Default}
+                className={styles.narrowInput}
+              />
+              <Description style={{ fontSize: '12px', marginTop: '4px' }}>Format: xxx.xxx.xxx.xxx</Description>
+            </div>
+          </div>
+        )}
+      </Card>
+      
+      {/* Action Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'flex-end', 
+        gap: spacing[2], 
+        marginBottom: spacing[3],
+        borderTop: `1px solid ${palette.gray.light2}`,
+        paddingTop: spacing[3],
+        marginTop: spacing[3]
+      }}>
+        <Button
+          variant="primary"
+          disabled={loading || !selectedCustomer}
+          onClick={handleSubmitTransaction}
+          leftGlyph={loading ? <Spinner /> : <Icon glyph="Beaker" fill={palette.gray.light3} />}
+          style={{ 
+            backgroundColor: loading || !selectedCustomer ? palette.gray.light2 : palette.green.dark2,
+            color: loading || !selectedCustomer ? palette.gray.dark1 : palette.gray.light3,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
+        >
+          {loading ? 'Evaluating...' : 'Evaluate Transaction'}
+        </Button>
+      </div>
+      
+      {/* Error Display */}
+      {error && (
+        <Banner variant="danger">
+          <ErrorText>{error}</ErrorText>
+        </Banner>
+      )}
+      
+      {/* Results Modal */}
+      {renderResultsModal()}
+    </div>
+  );
+}
+
+export default TransactionSimulator;
