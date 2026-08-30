@@ -86,24 +86,17 @@ export default function HomepageClient() {
         textAlign: 'center', 
         marginBottom: spacing[5], 
         padding: spacing[5],
-        background: `linear-gradient(135deg, rgba(0, 181, 167, 0.15) 0%, rgba(255, 255, 255, 0.6) 100%)`,
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
+        backgroundColor: '#f0faf6',
         borderRadius: '24px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-        border: `1px solid rgba(0, 181, 167, 0.2)`
+        boxShadow: '0 4px 16px rgba(0,0,0,0.05)',
+        border: '1px solid rgba(220, 240, 230, 0.8)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: spacing[3], marginBottom: spacing[2] }}>
-          <Icon glyph="Security" size={56} fill={palette.blue.dark2} aria-label="Sentinel AI Logo" />
-          <H1 style={{ margin: 0, color: palette.blue.dark2 }}>
-            Sentinel AI
-          </H1>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: spacing[3], marginBottom: spacing[4] }}>
+          <img src="/sentinel-logo.png" alt="Sentinel AI Logo" style={{ height: '80px', objectFit: 'contain' }} />
+          <img src="/sentinel-name.png" alt="Sentinel AI" style={{ height: '80px', objectFit: 'contain' }} />
         </div>
-        <H3 style={{ color: palette.blue.dark1, marginBottom: spacing[4], maxWidth: '800px', margin: '0 auto' }}>
-          Autonomous Financial Crime Investigation
-        </H3>
         <Description style={{ color: palette.gray.dark1, marginBottom: spacing[4], maxWidth: '600px', margin: '0 auto' }}>
-          Advanced entity resolution, network analysis, and real-time transaction monitoring powered by AI
+          Advanced entity resolution, network analysis, and real-time transaction monitoring powered by MongoDB
         </Description>
       </Card>
 
@@ -116,7 +109,17 @@ export default function HomepageClient() {
         </Banner>
       )}
 
-      <H2 style={{ marginBottom: spacing[2], textAlign: 'center', color: palette.blue.dark2 }}>Core Capabilities</H2>
+      <div style={{ textAlign: 'center', marginBottom: spacing[2] }}>
+        <H2 style={{ 
+          display: 'inline-block', 
+          color: '#0f2942', 
+          borderBottom: '3px solid #12B8B0',
+          paddingBottom: '4px',
+          margin: 0
+        }}>
+          Core Capabilities
+        </H2>
+      </div>
       <Description style={{ textAlign: 'center', marginBottom: spacing[4], color: palette.gray.dark1 }}>
         Each capability is tagged with the persona that owns it. Cards outside your current
         persona are shown for context and unlock when you switch users.
@@ -136,8 +139,10 @@ export default function HomepageClient() {
                 key={cap.href}
                 {...cardProps}
                 style={{
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                  border: `2px solid ${available ? cap.borderColor : palette.gray.light2}`,
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                  border: `2px solid ${available ? 'rgba(220, 240, 230, 0.8)' : palette.gray.light2}`,
+                  borderRadius: '16px',
                   textDecoration: 'none',
                   transition: 'all 0.2s ease',
                   cursor: available ? 'pointer' : 'default',
@@ -158,10 +163,10 @@ export default function HomepageClient() {
                     {ROLE_LABELS[cap.role]}
                   </Badge>
                 </div>
-                <H3 style={{ marginBottom: spacing[2], color: palette.gray.dark2 }}>
+                <H3 style={{ marginBottom: spacing[2], color: '#0f2942' }}>
                   {cap.title}
                 </H3>
-                <Description style={{ color: palette.gray.dark1 }}>
+                <Description style={{ color: '#475569' }}>
                   {cap.description}
                 </Description>
                 {!available && (

@@ -52,21 +52,23 @@ export default function ClientLayout({ children, bianModelUrl }) {
   };
 
   const navLinkStyle = (href) => ({
-    color: palette.gray.light3,
+    color: isActive(href) ? '#12B8B0' : '#0f2942',
     textDecoration: 'none',
     display: 'flex',
     alignItems: 'center',
-    gap: spacing[1],
+    gap: '8px',
     padding: `${spacing[2]}px ${spacing[3]}px`,
     borderRadius: '4px',
-    transition: 'background-color 0.2s ease',
-    backgroundColor: isActive(href) ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
+    transition: 'background-color 0.2s ease, color 0.2s ease',
+    backgroundColor: isActive(href) ? '#e0f5f0' : 'transparent',
+    whiteSpace: 'nowrap',
+    fontWeight: isActive(href) ? 600 : 500,
   });
 
   const handleLinkHover = (e, href, entering) => {
     e.currentTarget.style.backgroundColor = entering
-      ? palette.green.dark1
-      : isActive(href) ? 'rgba(255, 255, 255, 0.12)' : 'transparent';
+      ? '#f0faf6'
+      : isActive(href) ? '#e0f5f0' : 'transparent';
   };
 
   useEffect(() => {
@@ -81,16 +83,18 @@ export default function ClientLayout({ children, bianModelUrl }) {
     <LeafyGreenProvider>
       <header
         style={{
-          backgroundColor: 'rgba(16, 28, 58, 0.85)',
-          color: palette.gray.light3,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          borderBottom: `1px solid rgba(36, 59, 92, 0.5)`,
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          color: '#0f2942',
+          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.05)',
+          border: '1px solid rgba(220, 240, 230, 0.5)',
+          borderRadius: '24px',
+          margin: '16px',
           padding: 0,
           position: 'sticky',
-          top: 0,
+          top: '16px',
           zIndex: 100,
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         <div
@@ -104,48 +108,9 @@ export default function ClientLayout({ children, bianModelUrl }) {
             padding: `${spacing[3]}px ${spacing[3]}px`,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <div
-              style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-              }}
-            >
-              <Icon glyph="Security" size={40} fill={palette.green.base} aria-label="Sentinel AI Logo" />
-            </div>
-            <div>
-              <H1
-                style={{
-                  fontSize: '28px',
-                  lineHeight: '32px',
-                  margin: 0,
-                  padding: 0,
-                  color: palette.gray.light3,
-                  fontFamily: "'Euclid Circular A', sans-serif",
-                  fontWeight: 700,
-                }}
-              >
-                Sentinel AI
-              </H1>
-              <Overline
-                style={{
-                  color: palette.gray.light2,
-                  margin: 0,
-                  fontFamily: "'Euclid Circular A', sans-serif",
-                  fontWeight: 400,
-                }}
-              >
-                Autonomous Financial Crime Investigation
-              </Overline>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <img src="/sentinel-logo.png" alt="Sentinel AI Logo" style={{ height: '48px', objectFit: 'contain' }} />
+            <img src="/sentinel-name.png" alt="Sentinel AI Name" style={{ height: '48px', objectFit: 'contain' }} />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -190,8 +155,8 @@ export default function ClientLayout({ children, bianModelUrl }) {
                       onMouseEnter={(e) => handleLinkHover(e, link.href, true)}
                       onMouseLeave={(e) => handleLinkHover(e, link.href, false)}
                     >
-                      <Icon glyph={link.icon} fill={palette.gray.light3} size={16} />
-                      <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500, color: 'inherit' }}>{link.label}</Body>
+                      <Icon glyph={link.icon} fill={isActive(link.href) ? '#12B8B0' : '#0f2942'} size={16} />
+                      <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", color: 'inherit' }}>{link.label}</Body>
                     </Link>
                   </li>
                 ))}
@@ -209,8 +174,8 @@ export default function ClientLayout({ children, bianModelUrl }) {
                     onMouseLeave={(e) => handleLinkHover(e, '/bian-data-model', false)}
                     title="BIAN Data Model"
                   >
-                    <Icon glyph="Read" fill={palette.gray.light3} size={16} />
-                    <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", fontWeight: 500, color: 'inherit' }}>Data Model</Body>
+                    <Icon glyph="Read" fill={isActive('/bian-data-model') ? '#12B8B0' : '#0f2942'} size={16} />
+                    <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", color: 'inherit' }}>Data Model</Body>
                   </a>
                 </li>
               </ul>
@@ -230,16 +195,14 @@ export default function ClientLayout({ children, bianModelUrl }) {
       </header>
 
       <main>
-        <div style={{ backgroundColor: palette.gray.light3, minHeight: 'calc(100vh - 74px)', padding: spacing[3] }}>
-          <Card style={{ 
+        <div style={{ backgroundColor: 'transparent', minHeight: 'calc(100vh - 74px)', padding: spacing[3] }}>
+          <div style={{ 
             maxWidth: '1600px', 
             margin: '0 auto', 
             padding: spacing[4],
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-            border: `1px solid ${palette.gray.light2}`,
           }}>
             {children}
-          </Card>
+          </div>
         </div>
       </main>
 
@@ -387,6 +350,11 @@ export default function ClientLayout({ children, bianModelUrl }) {
           nav ul {
             flex-direction: column !important;
           }
+        }
+        body {
+          background-color: #eaf5f0;
+          margin: 0;
+          padding: 0;
         }
       `}</style>
     </LeafyGreenProvider>
