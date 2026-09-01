@@ -22,7 +22,7 @@ function Header() {
     <div className={styles["layout-header"]}>
       <div className={styles["logo-container"]}>
         <div>
-          <H1 className={styles.title}>ThreatSight360</H1>
+          <H1 className={styles.title}>SentinelAI</H1>
           <Overline className={styles.subtitle}>Fraud Detection System</Overline>
         </div>
       </div>
@@ -46,11 +46,6 @@ function Header() {
         <Link href="/transaction-simulator" className={styles.navLink}>
           <Icon glyph="CreditCard" fill={palette.gray.light3} /> 
           <Body>Transaction Simulator</Body>
-        </Link>
-        
-        <Link href="/risk-models" className={styles.navLink}>
-          <Icon glyph="Settings" fill={palette.gray.light3} /> 
-          <Body>Risk Models</Body>
         </Link>
         
         <div className={styles.linkHideDesktop}>

@@ -26,7 +26,7 @@ load_dotenv()
 
 # Create FastAPI app
 app = FastAPI(
-    title="ThreatSight 360",
+    title="SentinelAI",
     description="Fraud Detection API for Financial Services",
     version="1.0.0",
     # Must stay True. List routes are declared as `@router.get("/")` under a prefix,

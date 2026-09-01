@@ -20,7 +20,6 @@ const ROUTE_ROLES = [
   { href: '/entities', roles: ['risk_analyst'] },
   { href: '/entity-resolution', roles: ['risk_analyst'] },
   { href: '/transaction-simulator', roles: ['risk_analyst'] },
-  { href: '/risk-models', roles: ['risk_manager'] },
 ];
 
 // Suppress LeafyGreen UI Table cellIndex warning caused by outdated component library
@@ -145,7 +144,6 @@ export default function ClientLayout({ children, bianModelUrl }) {
                   { href: '/entities', icon: 'Person', label: 'Entity Management', roles: ['risk_analyst'] },
                   { href: '/entity-resolution/enhanced', icon: 'Relationship', label: 'Entity Resolution', roles: ['risk_analyst'] },
                   { href: '/transaction-simulator', icon: 'CreditCard', label: 'Transaction Simulator', roles: ['risk_analyst'] },
-                  { href: '/risk-models', icon: 'Settings', label: 'Risk Models', roles: ['risk_manager'] },
                 ].filter(link => !link.roles || link.roles.includes(role)).map(link => (
                   <li key={link.href}>
                     <Link

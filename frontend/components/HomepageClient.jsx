@@ -56,15 +56,6 @@ const CAPABILITIES = [
     title: 'Transaction Simulator',
     description: 'Test fraud detection with real-time transaction monitoring. Uses MongoDB Atlas Vector Search to compare transaction patterns against known fraud embeddings for instant risk assessment.',
   },
-  {
-    href: '/risk-models',
-    role: 'risk_manager',
-    glyph: 'Settings',
-    iconColor: palette.gray.dark1,
-    borderColor: palette.gray.light1,
-    title: 'Risk Models',
-    description: 'Configure fraud detection rules and risk thresholds. MongoDB aggregation pipelines enable complex multi-factor scoring with real-time updates as new patterns emerge.',
-  },
 ];
 
 export default function HomepageClient() {
@@ -159,9 +150,6 @@ export default function HomepageClient() {
                   <span style={{ color: available ? cap.iconColor : palette.gray.dark1, display: 'flex' }}>
                     <Icon glyph={cap.glyph} size="large" />
                   </span>
-                  <Badge variant={cap.role === 'risk_manager' ? 'blue' : 'green'}>
-                    {ROLE_LABELS[cap.role]}
-                  </Badge>
                 </div>
                 <H3 style={{ marginBottom: spacing[2], color: '#0f2942' }}>
                   {cap.title}

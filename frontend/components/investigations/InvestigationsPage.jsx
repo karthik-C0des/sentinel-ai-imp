@@ -136,7 +136,7 @@ function getContextualSubtitle(activeView, selectedCase) {
     case 'launcher': return 'Select a scenario to investigate';
     case 'detail': return selectedCase ? `Reviewing ${selectedCase.case_id}` : 'Select a case from the queue';
     case 'analytics': return 'Pipeline metrics and investigation analytics';
-    case 'assistant': return 'Investigate entities, trace fund flows, and generate reports with ThreatSight';
+    case 'assistant': return 'Investigate entities, trace fund flows, and generate reports with SentinelAI';
     case 'pipeline': return 'LangGraph multi-agent architecture';
     case 'architecture': return '12 LangGraph agents powered by MongoDB, with durable human-in-the-loop review';
     default: return '';

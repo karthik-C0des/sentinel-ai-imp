@@ -70,7 +70,7 @@ export default function UserSelectionModal({ isSwitching = false, onClose }) {
       <div className={styles.container}>
         <div className={styles.header}>
           <H1 className={styles.title} style={{ color: palette.gray.dark2 }}>
-            {isSwitching ? 'Switch Role' : 'Welcome to ThreatSight 360'}
+            {isSwitching ? 'Switch Role' : 'Welcome to SentinelAI'}
           </H1>
           {!isSwitching && (
             <Description className={styles.subtitle} style={{ color: palette.gray.dark1 }}>

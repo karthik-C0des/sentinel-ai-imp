@@ -1165,12 +1165,10 @@ export default function ChatBubble({ embedded = false, pageContext = null, initi
           }}
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-          title="ThreatSight Copilot"
+          title="sentinelai-copilot"
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2a7 7 0 0 1 7 7c0 3-1.5 5-3 6.5V18a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.5C6.5 14 5 12 5 9a7 7 0 0 1 7-7z"/>
-            <line x1="9" y1="22" x2="15" y2="22"/>
-            <line x1="10" y1="19" x2="14" y2="19"/>
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
           </svg>
         </div>
       </>
@@ -1211,7 +1209,7 @@ export default function ChatBubble({ embedded = false, pageContext = null, initi
           </div>
           <div>
             <Subtitle style={{ fontFamily: FONT, color: '#fff', fontSize: 14, margin: 0, lineHeight: 1.2 }}>
-              ThreatSight Copilot
+              SentinelAI-Copilot
             </Subtitle>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontFamily: FONT, display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4caf50', display: 'inline-block' }} />
@@ -1288,7 +1286,7 @@ export default function ChatBubble({ embedded = false, pageContext = null, initi
                   </svg>
                 </div>
                 <Body style={{ fontFamily: FONT, color: palette.gray.dark2, fontSize: 14, fontWeight: 600, margin: 0 }}>
-                  ThreatSight Copilot
+                  SentinelAI-Copilot
                 </Body>
                 <Body style={{ fontFamily: FONT, color: palette.gray.dark1, fontSize: 12, marginTop: 4 }}>
                   Trace fund flows, assess risk, screen watchlists, analyze patterns, and generate reports.
