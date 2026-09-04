@@ -202,8 +202,16 @@ function _connectWithRetry(path, onEvent, { maxAttempts = 20, maxDelay = 30000 }
     if (closed) return;
 
     const wsUrl = _buildWsUrl(path);
-    ws = new WebSocket(wsUrl);
     let hadError = false;
+
+    try {
+      ws = new WebSocket(wsUrl);
+    } catch (err) {
+      // Catch synchronous errors (e.g. Mixed Content SecurityError)
+      if (closed) return;
+      onEvent({ type: '_error', error: err.message });
+      return;
+    }
 
     ws.onopen = () => {
       if (closed) return;
