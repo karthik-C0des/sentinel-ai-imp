@@ -1,6 +1,6 @@
 # MongoDB Vector Search Implementation
 
-This document outlines how MongoDB Vector Search is implemented in the ThreatSight360 Fraud Detection application.
+This document outlines how MongoDB Vector Search is implemented in the SentinelAI Fraud Detection application.
 
 ## Overview
 

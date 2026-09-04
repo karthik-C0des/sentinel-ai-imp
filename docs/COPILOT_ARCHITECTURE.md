@@ -1,6 +1,6 @@
-# ThreatSight Copilot - Architecture
+# SentinelAI Copilot - Architecture
 
-The ThreatSight Copilot is a conversational AI assistant available globally across the ThreatSight 360 application. It provides analysts with tool-assisted exploration of entities, transactions, networks, and investigations through natural language.
+The SentinelAI Copilot is a conversational AI assistant available globally across the SentinelAI application. It provides analysts with tool-assisted exploration of entities, transactions, networks, and investigations through natural language.
 
 ---
 
@@ -264,7 +264,7 @@ Sends a message to the Copilot and receives a streaming response.
 | `LLM_MODEL_ARN` | Haiku 4.5 inference profile | Override the default LLM model |
 | `RATE_LIMIT_CHAT` | `30` | Max chat requests per 60s |
 | `MONGODB_URI` | (required) | MongoDB connection string |
-| `DB_NAME` | `fsi-threatsight360` | Database name for checkpoints and tools |
+| `DB_NAME` | `fsi-sentinelai` | Database name for checkpoints and tools |
 
 ---
 

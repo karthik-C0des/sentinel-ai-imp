@@ -4,7 +4,7 @@
 #
 # NOTE: ENTITIES_COLLECTION / RELATIONSHIPS_COLLECTION below are load-bearing for
 # the AML network analysis (NetworkRepository takes BOTH names from env). Their
-# secret values must be `threatsightEntities` / `threatsightRelationships` — the
+# secret values must be `sentinelaiEntities` / `sentinelaiRelationships` — the
 # actual collection names on both clusters. Wrong values render an empty network
 # graph with no error.
 
@@ -110,8 +110,8 @@ sidecarContainers:
             name: fsi-fraud-detection-bian
             key: AML_DB_NAME
       # Collection names (from secrets) — MUST be injected: the code defaults are the
-      # BIAN-renamed `threatsightEntities` / `threatsightRelationships`, which do not
-      # exist in the as-is fsi-threatsight360 clone on ist-prod. Without these the
+      # BIAN-renamed `sentinelaiEntities` / `sentinelaiRelationships`, which do not
+      # exist in the as-is fsi-sentinelai clone on ist-prod. Without these the
       # AML backend reads empty collections and returns nothing, silently.
       - name: ENTITIES_COLLECTION
         valueFrom:

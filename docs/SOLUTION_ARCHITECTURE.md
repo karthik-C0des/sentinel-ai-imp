@@ -1,6 +1,6 @@
-# ThreatSight 360 - Solution Architecture
+# SentinelAI - Solution Architecture
 
-This document provides comprehensive architecture diagrams for the ThreatSight 360 platform in mermaid format. These diagrams complement the static PNG architecture images in the root README (`Sol Arch 1.png`, `Sol Arch 2.png`) with expanded coverage of the agentic pipeline, Copilot, deployment topology, and frontend architecture.
+This document provides comprehensive architecture diagrams for the SentinelAI platform in mermaid format. These diagrams complement the static PNG architecture images in the root README (`Sol Arch 1.png`, `Sol Arch 2.png`) with expanded coverage of the agentic pipeline, Copilot, deployment topology, and frontend architecture.
 
 ---
 
@@ -414,12 +414,12 @@ flowchart TB
     end
 
     subgraph DockerCompose["Docker Compose (docker/)"]
-        FrontendContainer["threatsight-front<br/>node:20.18.0-alpine<br/>:3000"]
-        FraudContainer["threatsight-back<br/>python:3.10-slim-buster<br/>:8000"]
+        FrontendContainer["sentinelai-front<br/>node:20.18.0-alpine<br/>:3000"]
+        FraudContainer["sentinelai-back<br/>python:3.10-slim-buster<br/>:8000"]
     end
 
     subgraph StandaloneDocker["Standalone Container"]
-        AMLContainer["threatsight-aml<br/>python:3.10-slim-buster<br/>:8001"]
+        AMLContainer["sentinelai-aml<br/>python:3.10-slim-buster<br/>:8001"]
     end
 
     subgraph KubernetesPod["Kubernetes Pod (environment/*.yaml)"]

@@ -1,7 +1,7 @@
-# ThreatSight 360 — Autonomous Financial Crime Investigation Agent
+# SentinelAI — Autonomous Financial Crime Investigation Agent
 ## End-to-End Project Documentation
 
-> **Platform Name:** ThreatSight 360  
+> **Platform Name:** SentinelAI  
 > **Application Type:** Multi-Agent Autonomous AML/KYC Investigation System  
 > **Stack:** Next.js (Frontend) · FastAPI + LangGraph (AML Backend) · FastAPI (Fraud Backend) · MongoDB Atlas  
 > **AI Engine:** Groq-hosted LLMs via LangChain · AWS Bedrock (Embeddings)
@@ -28,7 +28,7 @@
    - 6.10 [Agent Node 8: Validation (QA Agent)](#610-agent-node-8-validation-qa-agent)
    - 6.11 [Agent Node 9: Human Review (Interrupt Gate)](#611-agent-node-9-human-review-interrupt-gate)
    - 6.12 [Agent Node 10: Finalize](#612-agent-node-10-finalize)
-7. [Conversational Chat Agent — ThreatSight Co-Pilot](#7-conversational-chat-agent--threatsight-co-pilot)
+7. [Conversational Chat Agent — SentinelAI Co-Pilot](#7-conversational-chat-agent--sentinelai-co-pilot)
 8. [Tool Layer — What Every Agent Can Do](#8-tool-layer--what-every-agent-can-do)
 9. [LLM Configuration & Reliability](#9-llm-configuration--reliability)
 10. [API Layer — FastAPI Routes](#10-api-layer--fastapi-routes)
@@ -63,9 +63,9 @@ Financial institutions receive **millions of fraud signals every day** — trans
 | No audit trail | Failed regulator audits, large fines |
 | Slow decisions | Fraudsters move funds before accounts are frozen |
 
-### What is ThreatSight 360?
+### What is SentinelAI?
 
-ThreatSight 360 is an **autonomous, multi-agent investigation system** that:
+SentinelAI is an **autonomous, multi-agent investigation system** that:
 
 1. **Receives** a fraud alert (entity + alert type + risk signals).
 2. **Triages** the alert using an LLM — deciding if it's a real threat or a false positive.
@@ -76,7 +76,7 @@ ThreatSight 360 is an **autonomous, multi-agent investigation system** that:
 7. **Validates** the narrative quality before presenting it to a human analyst.
 8. **Routes** the case to a human reviewer, then **files** the final case to the database.
 
-### When Does ThreatSight 360 Act?
+### When Does SentinelAI Act?
 
 The system acts immediately upon receipt of an alert. An alert can be:
 - Triggered by a rule-based engine (e.g., "transaction > $10,000").
@@ -89,7 +89,7 @@ The system acts immediately upon receipt of an alert. An alert can be:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                     ThreatSight 360 Platform                        │
+│                     SentinelAI Platform                        │
 │                                                                     │
 │  ┌──────────────────────────────────────────────────────────────┐   │
 │  │                  Frontend (Next.js :3000)                    │   │
@@ -110,8 +110,8 @@ The system acts immediately upon receipt of an alert. An alert can be:
 │                 │                                                   │
 │  ┌──────────────▼──────────────────────────────────────────────┐   │
 │  │              MongoDB Atlas                                   │   │
-│  │  threatsightEntities · transactionsv2 · threatsightRela-    │   │
-│  │  tionships · threatsightInvestigations · Checkpoints · RAG  │   │
+│  │  sentinelaiEntities · transactionsv2 · sentinelaiRela-    │   │
+│  │  tionships · sentinelaiInvestigations · Checkpoints · RAG  │   │
 │  └─────────────────────────────────────────────────────────────┘   │
 │                                                                     │
 │  ┌─────────────────┐  ┌────────────────────┐                       │
@@ -155,17 +155,17 @@ The system acts immediately upon receipt of an alert. An alert can be:
 
 | Collection | Purpose |
 |---|---|
-| `threatsightEntities` | All entities (individuals, organizations, PEPs, shell companies). Holds risk scores, watchlist matches, behavioral embeddings. |
+| `sentinelaiEntities` | All entities (individuals, organizations, PEPs, shell companies). Holds risk scores, watchlist matches, behavioral embeddings. |
 | `transactionsv2` | All financial transactions with `fromEntityId`, `toEntityId`, `amount`, `timestamp`, `riskScore`, `flagged`. |
-| `threatsightRelationships` | Directed graph edges between entities (type, strength, confidence). Enables network traversal. |
-| `threatsightInvestigations` | Completed investigation case documents — the final output of each pipeline run. |
-| `threatsightCheckpoints` | LangGraph checkpoint state — serialized `InvestigationState` snapshots for durability and resume. |
-| `threatsightCheckpointWrites` | LangGraph write-ahead log for checkpoint updates. |
+| `sentinelaiRelationships` | Directed graph edges between entities (type, strength, confidence). Enables network traversal. |
+| `sentinelaiInvestigations` | Completed investigation case documents — the final output of each pipeline run. |
+| `sentinelaiCheckpoints` | LangGraph checkpoint state — serialized `InvestigationState` snapshots for durability and resume. |
+| `sentinelaiCheckpointWrites` | LangGraph write-ahead log for checkpoint updates. |
 | RAG Collections | Policy documents, typology libraries — used by agents via vector search. |
 
 ### Why MongoDB?
 
-- The `$graphLookup` aggregation stage lets the Trail Follower recursively traverse ownership chains across `threatsightRelationships` without loading the graph into memory.
+- The `$graphLookup` aggregation stage lets the Trail Follower recursively traverse ownership chains across `sentinelaiRelationships` without loading the graph into memory.
 - Atlas Vector Search on `profileEmbedding` enables similarity-based entity discovery.
 - Flexible document schema accommodates heterogeneous entity types (individual vs. organization vs. shell company).
 
@@ -520,14 +520,14 @@ The Trail Follower is a **reasoning agent** that:
 
 #### Why is This Important?
 
-Financial crimes rarely involve a single entity. Shell companies, nominee directors, and counterparties form layered structures. The Trail Follower is what allows ThreatSight to **follow the money** beyond the directly flagged entity.
+Financial crimes rarely involve a single entity. Shell companies, nominee directors, and counterparties form layered structures. The Trail Follower is what allows SentinelAI to **follow the money** beyond the directly flagged entity.
 
 #### How does `$graphLookup` work here?
 
 ```python
 {
     "$graphLookup": {
-        "from": "threatsightRelationships",
+        "from": "sentinelaiRelationships",
         "startWith": "$target.entityId",
         "connectFromField": "target.entityId",
         "connectToField": "source.entityId",
@@ -736,7 +736,7 @@ _compiled_graph = builder.compile(
 ```
 
 When the pipeline reaches `human_review`, LangGraph:
-1. Saves the full `InvestigationState` to MongoDB (`threatsightCheckpoints`).
+1. Saves the full `InvestigationState` to MongoDB (`sentinelaiCheckpoints`).
 2. Returns control to the API caller with `status="pending_human_review"`.
 3. The frontend displays the investigation + narrative to the analyst.
 
@@ -814,7 +814,7 @@ A complete `case_document` with:
 
 ---
 
-## 7. Conversational Chat Agent — ThreatSight Co-Pilot
+## 7. Conversational Chat Agent — SentinelAI Co-Pilot
 
 **File:** [`services/agents/chat_agent.py`](file:///c:/Users/R%20KARTHIK/Documents/aml-demo-01/fsi-aml-fraud-detection-main/aml-backend/services/agents/chat_agent.py)
 
@@ -1151,7 +1151,7 @@ An entity (`ENT-CORP-007`) triggers an alert:
 
 **Step 11: Finalize** _(~150ms, no LLM)_
 - Case document assembled with all pipeline outputs.
-- Written to `threatsightInvestigations` with `status="filed"`.
+- Written to `sentinelaiInvestigations` with `status="filed"`.
 - Pipeline metrics: 8 LLM calls, 23 tool calls, ~8.5 seconds total.
 
 ---
@@ -1239,4 +1239,4 @@ An entity (`ENT-CORP-007`) triggers an alert:
 
 ---
 
-*This document was generated from the ThreatSight 360 codebase and reflects the architecture as of August 2026.*
+*This document was generated from the SentinelAI codebase and reflects the architecture as of August 2026.*

@@ -22,7 +22,7 @@ def search_investigations(
     created_at, typology, triage disposition) sorted by most recent first.
     """
     client = get_mongo_client()
-    coll = client[DB_NAME]["threatsightInvestigations"]
+    coll = client[DB_NAME]["sentinelaiInvestigations"]
 
     query = {}
     if entity_id:
@@ -60,7 +60,7 @@ def get_investigation_detail(case_id: str) -> dict:
     human decision, and audit trail.
     """
     client = get_mongo_client()
-    doc = client[DB_NAME]["threatsightInvestigations"].find_one(
+    doc = client[DB_NAME]["sentinelaiInvestigations"].find_one(
         {"case_id": case_id}, {"_id": 0}
     )
     if not doc:
@@ -99,7 +99,7 @@ def search_entities(
     collection is empty vs. no entities matching the filter.
     """
     client = get_mongo_client()
-    coll = client[DB_NAME]["threatsightEntities"]
+    coll = client[DB_NAME]["sentinelaiEntities"]
 
     projection = {
         "_id": 0,
@@ -183,7 +183,7 @@ def assess_entity_risk(entity_id: str) -> dict:
     client = get_mongo_client()
     db = client[DB_NAME]
 
-    profile = db["threatsightEntities"].find_one(
+    profile = db["sentinelaiEntities"].find_one(
         {"entityId": entity_id},
         {
             "_id": 0, "entityId": 1, "entityType": 1, "name": 1,
@@ -219,7 +219,7 @@ def assess_entity_risk(entity_id: str) -> dict:
         {"$sort": {"count": -1}},
         {"$limit": 10},
     ]
-    relationships = list(db["threatsightRelationships"].aggregate(rel_type_pipeline))
+    relationships = list(db["sentinelaiRelationships"].aggregate(rel_type_pipeline))
 
     rel_risk_pipeline = [
         {"$match": {"$or": [
@@ -232,7 +232,7 @@ def assess_entity_risk(entity_id: str) -> dict:
             "high_risk": {"$sum": {"$cond": [{"$lt": ["$confidence", 0.5]}, 1, 0]}},
         }},
     ]
-    rel_risk = list(db["threatsightRelationships"].aggregate(rel_risk_pipeline))
+    rel_risk = list(db["sentinelaiRelationships"].aggregate(rel_risk_pipeline))
     rr = rel_risk[0] if rel_risk else {}
 
     watchlist = profile.get("watchlistMatches", [])
@@ -276,7 +276,7 @@ def compare_entities(entity_id_a: str, entity_id_b: str) -> dict:
     db = client[DB_NAME]
 
     def _summarize(eid):
-        entity = db["threatsightEntities"].find_one(
+        entity = db["sentinelaiEntities"].find_one(
             {"entityId": eid},
             {"_id": 0, "entityId": 1, "name": 1, "entityType": 1,
              "riskAssessment.overall": 1, "watchlistMatches": 1},
@@ -295,7 +295,7 @@ def compare_entities(entity_id_a: str, entity_id_b: str) -> dict:
         ]))
         t = txns[0] if txns else {}
 
-        rels = db["threatsightRelationships"].count_documents({
+        rels = db["sentinelaiRelationships"].count_documents({
             "$or": [{"source.entityId": eid}, {"target.entityId": eid}]
         })
 
@@ -408,7 +408,7 @@ def find_similar_entities(entity_id: str, limit: int = 5) -> dict:
     client = get_mongo_client()
     db = client[DB_NAME]
 
-    entity = db["threatsightEntities"].find_one(
+    entity = db["sentinelaiEntities"].find_one(
         {"entityId": entity_id},
         {"_id": 0, "entityId": 1, "name": 1, "profileEmbedding": 1},
     )
@@ -441,7 +441,7 @@ def find_similar_entities(entity_id: str, limit: int = 5) -> dict:
         }},
     ]
 
-    results = list(db["threatsightEntities"].aggregate(pipeline))
+    results = list(db["sentinelaiEntities"].aggregate(pipeline))
     return {
         "query_entity": entity_id,
         "query_name": entity.get("name", {}).get("full", ""),

@@ -9,11 +9,11 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 MONGODB_URI = (
     "mongodb+srv://repallekarthik11_db_user:kBzF1zL5nr1wVdLY"
-    "@aml-demo-cluster.klrgot.mongodb.net/threatsight360"
+    "@aml-demo-cluster.klrgot.mongodb.net/sentinelai"
     "?retryWrites=true&w=majority&appName=aml-demo-cluster"
 )
-DB_NAME = "threatsight360"
-COLLECTION = "threatsightEntities"
+DB_NAME = "sentinelai"
+COLLECTION = "sentinelaiEntities"
 
 random.seed(42)
 

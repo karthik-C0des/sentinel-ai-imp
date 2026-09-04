@@ -1,4 +1,4 @@
-# ThreatSight 360 - Frontend
+# SentinelAI - Frontend
 
 ![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
@@ -7,7 +7,7 @@
 
 **Next.js 15 Application with MongoDB LeafyGreen UI Design System**
 
-The ThreatSight 360 frontend provides a comprehensive interface for fraud detection, AML/KYC compliance, agentic investigations, and an AI-powered Copilot assistant. It communicates with two backend services through API proxies and supports real-time streaming via SSE and WebSocket.
+The SentinelAI frontend provides a comprehensive interface for fraud detection, AML/KYC compliance, agentic investigations, and an AI-powered Copilot assistant. It communicates with two backend services through API proxies and supports real-time streaming via SSE and WebSocket.
 
 ---
 

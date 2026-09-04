@@ -1,5 +1,5 @@
-import HomepageClient from "@/components/HomepageClient";
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return <HomepageClient />;
+  redirect('/dashboard');
 }

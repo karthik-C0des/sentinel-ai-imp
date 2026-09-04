@@ -1,4 +1,4 @@
-# ThreatSight 360 - AML/KYC Backend
+# SentinelAI - AML/KYC Backend
 
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
@@ -94,7 +94,7 @@ Create a `.env` file in the `aml-backend` directory:
 ```bash
 # MongoDB Connection
 MONGODB_URI=
-DB_NAME=threatsight360
+DB_NAME=sentinelai
 
 # AWS Bedrock Credentials (for AI features)
 AWS_ACCESS_KEY_ID=
@@ -264,7 +264,7 @@ poetry run uvicorn main:app --host 0.0.0.0 --port 8001
 The API will be available at [http://localhost:8001](http://localhost:8001)
 
 > [!Note]
-> For comprehensive entity data generation, use the [Entity Resolution Synthetic Data Generation notebook](../docs/ThreatSight%20360%20-%20Entity%20Resolution%20Synthetic%20Data%20Generation.ipynb) in [Google Colab](https://colab.research.google.com/) to populate your database with realistic AML/KYC test data including entities, relationships, and risk profiles.
+> For comprehensive entity data generation, use the [Entity Resolution Synthetic Data Generation notebook](../docs/SentinelAI%20360%20-%20Entity%20Resolution%20Synthetic%20Data%20Generation.ipynb) in [Google Colab](https://colab.research.google.com/) to populate your database with realistic AML/KYC test data including entities, relationships, and risk profiles.
 
 ## API Endpoints
 

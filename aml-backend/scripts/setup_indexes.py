@@ -9,8 +9,8 @@ load_dotenv('.env')
 async def setup():
     print("Connecting to MongoDB Atlas...")
     client = AsyncIOMotorClient(os.getenv('MONGODB_URI'))
-    db = client[os.getenv('DB_NAME', 'threatsight360')]
-    collection = db.threatsightEntities
+    db = client[os.getenv('DB_NAME', 'sentinelai')]
+    collection = db.sentinelaiEntities
     
     print("\n1. Creating entity_resolution_search (Text Index)")
     try:

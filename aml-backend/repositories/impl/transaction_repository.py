@@ -40,8 +40,8 @@ class TransactionRepository:
             {
                 "$match": {
                     "$or": [
-                        {"entityId": entity_id},
-                        {"counterpartyEntityId": entity_id}
+                        {"fromEntityId": entity_id},
+                        {"toEntityId": entity_id}
                     ]
                 }
             },
@@ -51,16 +51,16 @@ class TransactionRepository:
                 "$addFields": {
                     "computed_direction": {
                         "$cond": [
-                            {"$eq": ["$entityId", entity_id]},
-                            {"$cond": [{"$eq": ["$direction", "outgoing"]}, "sent", "received"]},
-                            {"$cond": [{"$eq": ["$direction", "outgoing"]}, "received", "sent"]}
+                            {"$eq": ["$fromEntityId", entity_id]},
+                            "sent",
+                            "received"
                         ]
                     },
                     "computed_counterparty_id": {
                         "$cond": [
-                            {"$eq": ["$entityId", entity_id]},
-                            "$counterpartyEntityId",
-                            "$entityId"
+                            {"$eq": ["$fromEntityId", entity_id]},
+                            "$toEntityId",
+                            "$fromEntityId"
                         ]
                     }
                 }
@@ -83,8 +83,8 @@ class TransactionRepository:
             {
                 "$match": {
                     "$or": [
-                        {"entityId": entity_id},
-                        {"counterpartyEntityId": entity_id}
+                        {"fromEntityId": entity_id},
+                        {"toEntityId": entity_id}
                     ]
                 }
             },
@@ -144,8 +144,8 @@ class TransactionRepository:
                 {
                     "$match": {
                         "$or": [
-                            {"entityId": {"$in": current_level_entities}},
-                            {"counterpartyEntityId": {"$in": current_level_entities}}
+                            {"fromEntityId": {"$in": current_level_entities}},
+                            {"toEntityId": {"$in": current_level_entities}}
                         ]
                     }
                 },
@@ -155,8 +155,8 @@ class TransactionRepository:
                         "connected_entities": {
                             "$addToSet": {
                                 "$concatArrays": [
-                                    ["$entityId"],
-                                    ["$counterpartyEntityId"]
+                                    ["$fromEntityId"],
+                                    ["$toEntityId"]
                                 ]
                             }
                         }
@@ -185,8 +185,8 @@ class TransactionRepository:
             {
                 "$match": {
                     "$and": [
-                        {"entityId": {"$in": list(connected_entities)}},
-                        {"counterpartyEntityId": {"$in": list(connected_entities)}}
+                        {"fromEntityId": {"$in": list(connected_entities)}},
+                        {"toEntityId": {"$in": list(connected_entities)}}
                     ]
                 }
             }
@@ -202,7 +202,7 @@ class TransactionRepository:
         
         # Fetch actual entity names and types
         db = self.transactions_collection.database
-        entities_cursor = db.threatsightEntities.find(
+        entities_cursor = db.sentinelaiEntities.find(
             {"entityId": {"$in": list(connected_entities)}},
             {"entityId": 1, "name.full": 1, "entityType": 1}
         )
@@ -214,13 +214,8 @@ class TransactionRepository:
             }
             
         for txn in all_transactions:
-            # We must correctly assign sender and receiver based on direction
-            if txn.get("direction") == "outgoing":
-                from_id = txn.get("entityId")
-                to_id = txn.get("counterpartyEntityId")
-            else:
-                from_id = txn.get("counterpartyEntityId")
-                to_id = txn.get("entityId")
+            from_id = txn.get("fromEntityId")
+            to_id = txn.get("toEntityId")
                 
             amount = txn.get("amount", 0.0)
             risk_score = txn.get("riskScore", 85.0 if txn.get("flagged") else 15.0)
@@ -278,12 +273,8 @@ class TransactionRepository:
         edge_metrics = {}
         
         for txn in all_transactions:
-            if txn.get("direction") == "outgoing":
-                from_id = txn.get("entityId")
-                to_id = txn.get("counterpartyEntityId")
-            else:
-                from_id = txn.get("counterpartyEntityId")
-                to_id = txn.get("entityId")
+            from_id = txn.get("fromEntityId")
+            to_id = txn.get("toEntityId")
                 
             edge_key = f"{from_id}->{to_id}"
             

@@ -55,16 +55,16 @@ class FraudDetectionService:
         
         Args:
             db_client: MongoDB client instance
-            db_name: Database for transactions (defaults to threatsight360)
+            db_name: Database for transactions (defaults to sentinelai)
             customer_db_name: Database for customers (defaults to leafy_bank_bian)
         """
         self.db_client = db_client
-        self.db_name = db_name or os.getenv("TRANSACTION_DB_NAME", "threatsight360")
+        self.db_name = db_name or os.getenv("TRANSACTION_DB_NAME", "sentinelai")
         # Customers live in a separate DB from transactions
         self.customer_db_name = customer_db_name or os.getenv("DB_NAME", "leafy_bank_bian")
         self.customer_collection = "customers"
         self.transaction_collection = "transactions"
-        self.fraud_pattern_collection = "threatsightFraudPatterns"
+        self.fraud_pattern_collection = "sentinelaiFraudPatterns"
         
         logger.info(f"Initialized FraudDetectionService — transactions DB: {self.db_name}, customers DB: {self.customer_db_name}")
     
@@ -468,7 +468,7 @@ class FraudDetectionService:
                 # Use vector search
                 pipeline = [
                     {
-                        # UNREACHABLE today: threatsightFraudPatterns has no vector index
+                        # UNREACHABLE today: sentinelaiFraudPatterns has no vector index
                         # (deliberately not created — building one would enable a code path
                         # that has never run), so has_vector_index is always False and the
                         # basic-query branch below is what executes.
@@ -1195,6 +1195,70 @@ class FraudDetectionService:
 
         except Exception as e:
             logger.error(f"Error updating customer risk profile: {str(e)}")
+            
+    async def resolve_false_positive(
+        self,
+        transaction_id: str,
+        customer_id: str,
+        cleared_flags: List[str],
+        analyst_notes: str
+    ) -> Dict[str, Any]:
+        """
+        Called when an analyst marks a HIGH alert as a False Positive.
+        """
+        if not cleared_flags:
+            return {"status": "resolved", "impact_reversed": 0.0}
+            
+        try:
+            customer = self._find_customer(customer_id)
+            if not customer:
+                logger.error(f"Could not find customer {customer_id} to resolve false positive")
+                return {"status": "error", "message": "Customer not found"}
+                
+            risk_profile = customer.get("riskProfile") or {}
+            current_score = float((risk_profile.get("overall") or {}).get("score") or 0.0)
+            
+            impact_reversal = FLAG_IMPACT * len(cleared_flags)
+            new_score = max(0.0, current_score - impact_reversal)
+            new_level = self._determine_risk_level(new_score)
+            
+            assessed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            
+            result = self.db_client.get_collection(
+                db_name=self.db_name,
+                collection_name=self.customer_collection
+            ).update_one(
+                scoped({"_id": customer["_id"]}),
+                {
+                    "$set": {
+                        "riskProfile.assessedAt": assessed_at,
+                        "riskProfile.overall.score": new_score,
+                        "riskProfile.overall.level": new_level,
+                    },
+                    "$push": {
+                        "riskProfile.falsePositiveHistory": {
+                            "transaction_id": transaction_id,
+                            "cleared_flags": cleared_flags,
+                            "impact_reversed": impact_reversal,
+                            "analyst_notes": analyst_notes,
+                            "timestamp": assessed_at
+                        },
+                        "riskProfile.history": {
+                            "date": assessed_at,
+                            "score": new_score,
+                            "level": new_level,
+                            "changeTrigger": "false_positive_resolution"
+                        }
+                    }
+                }
+            )
+            
+            logger.info(f"Resolved FP for {customer_id}: reversed {impact_reversal} points. {current_score} -> {new_score}")
+            return {"status": "resolved", "impact_reversed": impact_reversal, "new_score": new_score}
+            
+        except Exception as e:
+            logger.error(f"Error resolving false positive: {str(e)}")
+            return {"status": "error", "message": str(e)}
     
     def _calculate_haversine_distance(self, lon1: float, lat1: float, lon2: float, lat2: float) -> float:
         """

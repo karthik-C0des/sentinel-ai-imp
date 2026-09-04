@@ -131,7 +131,7 @@ START
 
 ### What It Does
 
-Entity Management is the **foundation of all investigations**. Every entity (individual, corporation, PEP, shell company) is stored in MongoDB's threatsightEntities collection with a rich schema.
+Entity Management is the **foundation of all investigations**. Every entity (individual, corporation, PEP, shell company) is stored in MongoDB's sentinelaiEntities collection with a rich schema.
 
 ### Core Schema
 ```
@@ -442,8 +442,8 @@ The Transaction Simulator (frontend /transaction-simulator) generates synthetic 
                            |
 
                     MONGODB ATLAS
-        threatsightEntities   |  threatsightRelationships
-        transactionsv2        |  threatsightInvestigations
+        sentinelaiEntities   |  sentinelaiRelationships
+        transactionsv2        |  sentinelaiInvestigations
         checkpoints           |  typologies  |  compliance_policies
 
                            |

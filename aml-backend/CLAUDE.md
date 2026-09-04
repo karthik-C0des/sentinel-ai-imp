@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is the **AML/KYC Backend** component of ThreatSight 360, a financial fraud detection system with dual-backend microservices architecture. This backend (port 8001) handles Anti-Money Laundering (AML) and Know Your Customer (KYC) compliance operations including entity management, intelligent entity resolution, and network analysis.
+This is the **AML/KYC Backend** component of SentinelAI, a financial fraud detection system with dual-backend microservices architecture. This backend (port 8001) handles Anti-Money Laundering (AML) and Know Your Customer (KYC) compliance operations including entity management, intelligent entity resolution, and network analysis.
 
 ## Related Documentation
 
@@ -160,7 +160,7 @@ pipeline = (self.repo.aggregation()
 ### Required Environment Variables
 ```bash
 MONGODB_URI=mongodb+srv://...
-DB_NAME=fsi-threatsight360
+DB_NAME=fsi-sentinelai
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 AWS_REGION=us-east-1

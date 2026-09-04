@@ -1,6 +1,6 @@
 # Agentic SAR Investigation Pipeline
 
-## ThreatSight 360 — Multi-Agent Financial Crime Investigation System
+## SentinelAI — Multi-Agent Financial Crime Investigation System
 
 > An autonomous, stateful investigation pipeline that transforms AML alerts into
 > regulatory-compliant SAR narratives using specialized AI agents, LangGraph
@@ -31,7 +31,7 @@
 ## 1. Executive Summary
 
 The Agentic Investigation Pipeline is a **LangGraph-powered multi-agent system**
-integrated into the ThreatSight 360 AML backend. It automates the end-to-end
+integrated into the SentinelAI AML backend. It automates the end-to-end
 investigation lifecycle — from initial alert triage through evidence gathering,
 typology classification, parallel analysis (network + temporal), trail following,
 sub-investigations of connected entities, SAR narrative generation, quality
@@ -599,7 +599,7 @@ access to all investigation tools plus specialized chat tools:
 
 ### Existing Collections (Reused As-Is)
 
-These collections are populated by the existing ThreatSight 360 seed notebooks.
+These collections are populated by the existing SentinelAI seed notebooks.
 The agentic pipeline reads from them via tools — no data is modified.
 
 #### `entities` — 504 documents
@@ -812,7 +812,7 @@ flowchart TB
 
 #### Artifact Streaming
 
-The ThreatSight Copilot supports **structured artifacts** — rich content blocks (Markdown,
+The SentinelAI Copilot supports **structured artifacts** — rich content blocks (Markdown,
 Mermaid diagrams, interactive HTML) embedded inline in the LLM's response stream.
 The system uses a two-part architecture:
 
@@ -1451,7 +1451,7 @@ flowchart LR
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `MONGODB_URI` | `mongodb://localhost:27017` | MongoDB connection string |
-| `DB_NAME` | `fsi-threatsight360` | Database name |
+| `DB_NAME` | `fsi-sentinelai` | Database name |
 | `AWS_REGION` | `us-east-1` | AWS region for Bedrock |
 | `VOYAGE_API_KEY` | — | Voyage AI API key |
 | `ENTITY_VECTOR_INDEX` | `entity_vector_search_index` | Atlas Vector Search index name (used by chat co-pilot) |
@@ -1652,5 +1652,5 @@ public/
 
 ---
 
-*Generated for ThreatSight 360 — Agentic SAR Investigation Pipeline*
+*Generated for SentinelAI — Agentic SAR Investigation Pipeline*
 *Built with LangGraph 1.0, MongoDB Atlas, Claude Sonnet, and Voyage AI*

@@ -9,7 +9,7 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 
 async def run():
     client = AsyncIOMotorClient(MONGODB_URI)
-    db = client['threatsight360']
+    db = client['sentinelai']
     coll = db['transactions']
     
     print("Waiting for transaction_vector_index to become READY...")

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-ThreatSight 360 is a comprehensive financial fraud detection system with a **dual-backend microservices architecture**:
+SentinelAI is a comprehensive financial fraud detection system with a **dual-backend microservices architecture**:
 
 - **Main Backend** (port 8000): Real-time fraud detection, transaction processing, risk assessment
 - **AML Backend** (port 8001): AML/KYC compliance, entity resolution, network analysis  
@@ -84,7 +84,7 @@ poetry run uvicorn main:app --reload --port 8000    # Development server (8000 f
   - `AgenticPipelineGraph.jsx`: ReactFlow pipeline visualization with dot grid canvas and node glow
   - `ChangeStreamConsole.jsx`: Collapsible MongoDB Change Stream monitor
 
-- `components/chat/`: ThreatSight Copilot UI
+- `components/chat/`: SentinelAI Copilot UI
   - `ArtifactPanel.jsx`: Side panel for typed artifacts (Markdown, Mermaid, HTML) with sandboxed iframe preview for HTML
 
 - `lib/`: API client libraries
@@ -363,7 +363,7 @@ The Agentic Investigations page uses a centralized design token module (`compone
 ```bash
 # MongoDB
 MONGODB_URI=mongodb+srv://...
-DB_NAME=fsi-threatsight360
+DB_NAME=fsi-sentinelai
 
 # AWS Bedrock
 AWS_ACCESS_KEY_ID=...

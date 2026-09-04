@@ -41,13 +41,14 @@ def query_entity_transactions(entity_id: str, limit: int = 50) -> dict:
             "from": t.get("fromEntityId"),
             "to": t.get("toEntityId"),
             "amount": t.get("amount"),
-            "currency": t.get("currency", "USD"),
+            "currency": t.get("currency", "INR"),  # Default: INR (India jurisdiction)
             "type": t.get("transactionType"),
             "tags": t.get("tags", []),
             "riskScore": t.get("riskScore", 0),
             "flagged": t.get("flagged", False),
             "timestamp": str(t.get("timestamp", "")),
         })
+
 
     return {
         "entity_id": entity_id,

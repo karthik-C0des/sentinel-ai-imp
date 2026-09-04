@@ -1,8 +1,8 @@
-# ThreatSight 360 - MongoDB Data Model
+# SentinelAI - MongoDB Data Model
 
 This document provides a consolidated reference for all MongoDB collections, schemas, indexes, and conventions used across both backends.
 
-**Database**: `fsi-threatsight360` (configurable via `DB_NAME` environment variable)
+**Database**: `fsi-sentinelai` (configurable via `DB_NAME` environment variable)
 
 ---
 
@@ -420,7 +420,7 @@ erDiagram
 
 ### Cross-Backend Relationships
 
-The `customers` / `transactions` / `fraud_patterns` collections are used exclusively by the Fraud Backend (:8000). The `entities` / `relationships` / `transactionsv2` and all agentic collections are used by the AML Backend (:8001). Both backends share the same database (`fsi-threatsight360`) but operate on separate collections.
+The `customers` / `transactions` / `fraud_patterns` collections are used exclusively by the Fraud Backend (:8000). The `entities` / `relationships` / `transactionsv2` and all agentic collections are used by the AML Backend (:8001). Both backends share the same database (`fsi-sentinelai`) but operate on separate collections.
 
 The `TransactionSimulator` in the frontend uses entity data from the AML backend for customer selection but submits transactions to the Fraud backend for evaluation.
 

@@ -124,7 +124,7 @@ function TransactionSimulator() {
   // component's internal shape, kept so the render code stays untouched.
   //
   // Replaces the previous mapEntityToCustomer, which read the AML backend's /entities/
-  // response on the old fsi-threatsight360 database.
+  // response on the old fsi-sentinelai database.
   const mapCustomer = (doc) => {
     const identification = doc.identification || {};
     const behavioral = doc.behavioralProfile || {};
@@ -167,7 +167,7 @@ function TransactionSimulator() {
         setInitialLoading(true);
 
         // The fraud backend owns `customers` and is already pointed at leafy_bank_bian.
-        // The AML backend still defaults to the old fsi-threatsight360 database, so
+        // The AML backend still defaults to the old fsi-sentinelai database, so
         // reading the picker from there would hand this backend ids it cannot resolve.
         const limit = 50;
         const skip = 0;

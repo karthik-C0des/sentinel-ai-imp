@@ -15,15 +15,15 @@ from dependencies import get_database, get_risk_model_service
 from services.risk_model_service import RiskModelService
 
 # Collection names. Renamed 2026-07-29 by the leafy_bank_bian migration
-# (risk_models -> threatsightRiskModels, model_performance -> threatsightModelPerformance).
+# (risk_models -> sentinelaiRiskModels, model_performance -> sentinelaiModelPerformance).
 #
 # These are constants rather than inline strings for one specific reason: the
 # change-stream $match at get_model_updates() filters on `ns.coll` by NAME. A
 # db.watch() pipeline whose collection name has drifted matches NOTHING and fails
 # SILENTLY -- no error, no log, just a dead update feed. Binding the watch and the
 # reads to the same constant makes that drift impossible.
-RISK_MODELS_COLLECTION = "threatsightRiskModels"
-MODEL_PERFORMANCE_COLLECTION = "threatsightModelPerformance"
+RISK_MODELS_COLLECTION = "sentinelaiRiskModels"
+MODEL_PERFORMANCE_COLLECTION = "sentinelaiModelPerformance"
 
 router = APIRouter(
     prefix="/models",

@@ -1,7 +1,7 @@
 """Query scoping for the shared `leafy_bank_bian` database.
 
 `customers` and `transactions` in `leafy_bank_bian` are shared with the Leafy Bank
-payments/ledger demo. ThreatSight must only ever see its own documents, so every
+payments/ledger demo. SentinelAI must only ever see its own documents, so every
 read against those two collections is wrapped in `scoped()`, and every write stamps
 `SOURCE_SYSTEM_FIELD`.
 
@@ -10,7 +10,7 @@ appears to vanish. It also escapes the ledger change stream's exclusion filter
 (`ingest_worker.py`), which would reject it and kill the worker.
 """
 
-SOURCE_SYSTEM = "threatsight360"
+SOURCE_SYSTEM = "sentinelai"
 SOURCE_SYSTEM_FIELD = "sourceSystem"
 
 

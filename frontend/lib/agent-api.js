@@ -5,7 +5,7 @@
 
 const AML_API_URL =
   process.env.NEXT_PUBLIC_AML_API_URL ||
-  'https://threatsight-aml.api.mongodb-industry-solutions.com';
+  'https://sentinelai-aml.api.mongodb-industry-solutions.com';
 
 /**
  * Build a WebSocket URL for AML backend endpoints.

@@ -548,7 +548,7 @@ function EvidenceTab({ caseFile, typology, networkAnalysis, temporalAnalysis, tr
           {entity?.name && <MetricCard label="Entity" value={entity.name} />}
           {entity?.risk_score != null && <MetricCard label="Risk Score" value={entity.risk_score} />}
           {txns?.total_count != null && <MetricCard label="Transactions" value={txns.total_count} />}
-          {txns?.total_volume != null && <MetricCard label="Volume" value={`$${txns.total_volume.toLocaleString()}`} />}
+          {txns?.total_volume != null && <MetricCard label="Volume" value={`₹${txns.total_volume.toLocaleString()}`} />}
           {networkAnalysis?.network_size > 0 && <MetricCard label="Network Size" value={networkAnalysis.network_size} />}
           {networkAnalysis?.high_risk_connections > 0 && <MetricCard label="High-Risk Links" value={networkAnalysis.high_risk_connections} />}
         </div>
@@ -635,7 +635,7 @@ function EvidenceTab({ caseFile, typology, networkAnalysis, temporalAnalysis, tr
             items={temporalAnalysis.structuring_indicators}
             colorBg={palette.red.light3}
             colorText={palette.red.dark2}
-            renderItem={(s) => `${s.date}: ${s.count} transactions totalling $${s.total?.toLocaleString()}`}
+            renderItem={(s) => `${s.date}: ${s.count} transactions totalling ₹${s.total?.toLocaleString()}`}
           />
           <PatternGroup
             title="Velocity Spikes"
@@ -649,14 +649,14 @@ function EvidenceTab({ caseFile, typology, networkAnalysis, temporalAnalysis, tr
             items={temporalAnalysis.round_trip_patterns}
             colorBg={palette.red.light3}
             colorText={palette.red.dark2}
-            renderItem={(r) => `${r.counterparty}: Out $${r.outgoing_amount?.toLocaleString()} → Return $${r.return_amount?.toLocaleString()}`}
+            renderItem={(r) => `${r.counterparty}: Out ₹${r.outgoing_amount?.toLocaleString()} → Return ₹${r.return_amount?.toLocaleString()}`}
           />
           <PatternGroup
             title="Dormancy-Burst Patterns"
             items={temporalAnalysis.dormancy_bursts}
             colorBg={palette.yellow.light3}
             colorText={palette.yellow.dark2}
-            renderItem={(d) => `${d.dormancy_days} days dormant → ${d.burst_transaction_count} transactions ($${d.burst_volume?.toLocaleString()})`}
+            renderItem={(d) => `${d.dormancy_days} days dormant → ${d.burst_transaction_count} transactions (₹${d.burst_volume?.toLocaleString()})`}
           />
         </Section>
       )}

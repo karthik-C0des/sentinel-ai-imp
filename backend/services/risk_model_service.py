@@ -10,11 +10,11 @@ from pymongo.change_stream import ChangeStream
 logger = logging.getLogger(__name__)
 
 # Renamed 2026-07-29 by the leafy_bank_bian migration
-# (risk_models -> threatsightRiskModels, model_performance -> threatsightModelPerformance).
+# (risk_models -> sentinelaiRiskModels, model_performance -> sentinelaiModelPerformance).
 # Kept as constants so the collection-level change stream in start_change_stream()
 # cannot drift from the reads.
-RISK_MODELS_COLLECTION = "threatsightRiskModels"
-MODEL_PERFORMANCE_COLLECTION = "threatsightModelPerformance"
+RISK_MODELS_COLLECTION = "sentinelaiRiskModels"
+MODEL_PERFORMANCE_COLLECTION = "sentinelaiModelPerformance"
 
 
 class RiskModelService:

@@ -1,4 +1,4 @@
-# ThreatSight 360 - Financial Fraud Detection System
+# SentinelAI - Financial Fraud Detection System
 
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
@@ -11,13 +11,13 @@
 
 In today's rapidly evolving financial landscape, detecting fraudulent transactions quickly and accurately while maintaining robust AML/KYC compliance is crucial. Financial institutions of all sizes struggle with balancing customer experience with comprehensive fraud protection and regulatory compliance.
 
-ThreatSight 360 addresses these challenges with real-time risk assessment, AI-powered pattern recognition, intelligent entity resolution, and comprehensive compliance operations.
+SentinelAI addresses these challenges with real-time risk assessment, AI-powered pattern recognition, intelligent entity resolution, and comprehensive compliance operations.
 
 > **What's new in v3 — Now with Agentic Investigations**
 >
 > - **Autonomous SAR investigations** powered by 6 specialized LangGraph agents: Triage → Case Analyst → Trail Follower → Sub-Investigator → SAR Author → Compliance QA
 > - **Durable Human-in-the-Loop** via `interrupt_before` checkpoints and `MongoDBSaver` — analysts resume hours or days later with zero context loss
-> - **ThreatSight Copilot** — a global, conversational ReAct agent with 15 MongoDB-backed tools and rich artifact rendering (Markdown, Mermaid, sandboxed HTML)
+> - **SentinelAI Copilot** — a global, conversational ReAct agent with 15 MongoDB-backed tools and rich artifact rendering (Markdown, Mermaid, sandboxed HTML)
 > - **Live pipeline visualization** — ReactFlow graph with SSE-streamed node activations, animated `Send` fan-out, and stacked sub-agent satellites
 > - **Compliance-grade narrative grounding** — Atlas Search RAG over typology library + FinCEN policy corpus
 > - **Powered by Claude Haiku 4.5** on AWS Bedrock with `with_structured_output()` for type-safe agent decisions
@@ -28,7 +28,7 @@ By the end of this guide, you'll have a comprehensive fraud detection and AML/KY
 - **Intelligent Entity Resolution**: AI-powered fuzzy matching and duplicate detection for AML/KYC compliance
 - **LLM-Powered Classification**: AWS Bedrock Claude Haiku 4.5 for automated entity risk assessment
 - **Agentic SAR Investigation Pipeline**: 6-agent LangGraph pipeline (Triage, Case Analyst, Trail Follower, Sub-Investigator, SAR Author, Compliance QA) that autonomously investigates AML alerts — parallel data gathering, typology classification, network + temporal analysis, lead-driven sub-investigations, FinCEN-compliant SAR narratives, and durable human-in-the-loop review
-- **ThreatSight Copilot**: ReAct agent with 15 tools spanning fund flow tracing, temporal analysis, entity similarity, network intelligence, and policy/typology lookup — with rich artifact rendering (Markdown, Mermaid diagrams, interactive HTML) for analyst-driven exploration
+- **SentinelAI Copilot**: ReAct agent with 15 tools spanning fund flow tracing, temporal analysis, entity similarity, network intelligence, and policy/typology lookup — with rich artifact rendering (Markdown, Mermaid diagrams, interactive HTML) for analyst-driven exploration
 - **Automated Case Investigation**: AI-generated investigation reports and case documentation
 - **Network Analysis**: Relationship mapping and graph analytics for compliance investigations
 - **Vector-based Pattern Recognition**: Advanced similarity matching using MongoDB Atlas Vector Search
@@ -55,7 +55,7 @@ We will walk you through the process of configuring and using [MongoDB Atlas](ht
 
 ## Architecture Overview
 
-ThreatSight 360 uses a **dual-backend microservices architecture**:
+SentinelAI uses a **dual-backend microservices architecture**:
 
 ### **Backend** (`/backend`, port 8000)
 
@@ -68,7 +68,7 @@ ThreatSight 360 uses a **dual-backend microservices architecture**:
 - **Intelligent Entity Resolution**: [MongoDB Atlas Search](https://www.mongodb.com/docs/atlas/atlas-search/) fuzzy matching and duplicate detection
 - **LLM Classification Service**: AWS Bedrock Claude Haiku 4.5 for entity risk assessment
 - **Agentic Investigation Pipeline**: [LangGraph](https://langchain-ai.github.io/langgraph/)-orchestrated 6-agent SAR investigation system (Triage → Case Analyst → Trail Follower → Sub-Investigator → SAR Author → Compliance QA) with `MongoDBSaver` checkpointing, parallel `Send` fan-out for fetch tools and sub-agents, and durable `interrupt_before`-based human review
-- **ThreatSight Copilot**: ReAct agent with 15 tools for fund flow tracing, temporal analysis, entity similarity, and lead expansion with rich artifact rendering
+- **SentinelAI Copilot**: ReAct agent with 15 tools for fund flow tracing, temporal analysis, entity similarity, and lead expansion with rich artifact rendering
 - **Investigation Service**: Automated case investigation and report generation
 - **Network Analysis**: Relationship and transaction graph traversal analytics using [MongoDB $graphLookup](https://www.mongodb.com/docs/manual/reference/operator/aggregation/graphLookup/)
 - **Atlas Search Integration**: Advanced search capabilities with [faceted filtering](https://www.mongodb.com/docs/atlas/atlas-search/facet/) and [autocomplete](https://www.mongodb.com/docs/atlas/atlas-search/autocomplete/)
@@ -80,11 +80,11 @@ ThreatSight 360 uses a **dual-backend microservices architecture**:
 - **Entity Management Dashboard**: Advanced entity 360 with relationship and transaction network visualization
 - **Intelligent Entity Resolution Workflow**: A multi-step entity onboarding workflow involving MongoDB full-text + vector + [hybrid search with $rankFusion](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-stage/#atlas-vector-search-rankfusion), network traversal using [$graphLookup](https://www.mongodb.com/docs/manual/reference/operator/aggregation/graphLookup/) and risk classification and case generation using LLMs
 - **Agentic Investigations Dashboard**: Interactive investigation control surface with live pipeline visualization (ReactFlow), real-time SSE streaming, human review workflow, and a polished "Control Room" UI built with MongoDB LeafyGreen components and centralized design tokens
-  - **ThreatSight Copilot**: Conversational assistant with tool access for fund flow tracing, temporal analysis, entity similarity, and lead expansion — includes an artifact panel that renders Markdown, Mermaid diagrams, and sandboxed HTML previews
+  - **SentinelAI Copilot**: Conversational assistant with tool access for fund flow tracing, temporal analysis, entity similarity, and lead expansion — includes an artifact panel that renders Markdown, Mermaid diagrams, and sandboxed HTML previews
 
 ## Solution Architecture
 
-ThreatSight 360 employs a microservices architecture with multiple key components working in tandem. For expanded mermaid-based architecture diagrams covering the full system (including agentic pipelines, Copilot, and deployment topology), see [docs/SOLUTION_ARCHITECTURE.md](docs/SOLUTION_ARCHITECTURE.md).
+SentinelAI employs a microservices architecture with multiple key components working in tandem. For expanded mermaid-based architecture diagrams covering the full system (including agentic pipelines, Copilot, and deployment topology), see [docs/SOLUTION_ARCHITECTURE.md](docs/SOLUTION_ARCHITECTURE.md).
 
 ### Fraud Detection Flow
 
@@ -110,7 +110,64 @@ The AML/entity resolution flow showcases:
 
 ### Agentic Investigation Pipeline
 
-![Agentic Investigation Pipeline](docs/Agentic%20Investigation%20Pipeline.png)
+```mermaid
+flowchart TD
+    Start(["Alert Input"]) --> Triage["Triage Agent<br/><i>Risk scoring + disposition</i>"]
+
+    Triage -->|"Command: auto_close<br/>Risk < 25, no hits"| AutoClose["Auto-Close FP"]
+    Triage -->|"Command: investigate<br/>Risk ≥ 25"| FanOut["Data Gathering<br/><i>Fan-out dispatcher</i>"]
+
+    AutoClose --> Finalize
+
+    FanOut -->|"Send"| FetchEntity["Fetch Entity<br/>Profile"]
+    FanOut -->|"Send"| FetchTxn["Fetch<br/>Transactions"]
+    FanOut -->|"Send"| FetchNet["Analyze<br/>Network"]
+    FanOut -->|"Send"| FetchWL["Screen<br/>Watchlists"]
+
+    FetchEntity --> CaseAnalyst["Case Analyst<br/><i>CaseFile + TypologyResult<br/>in single LLM call</i>"]
+    FetchTxn --> CaseAnalyst
+    FetchNet --> CaseAnalyst
+    FetchWL --> CaseAnalyst
+
+    CaseAnalyst --> NetAnalyst["Network Analyst<br/><i>Risk profiling</i>"]
+    CaseAnalyst --> TempAnalyst["Temporal Analyst<br/><i>Time-pattern detection</i>"]
+
+    NetAnalyst --> TrailFollower["Trail Follower<br/><i>Conditional LLM lead selection</i>"]
+    TempAnalyst --> TrailFollower
+
+    TrailFollower --> SubDispatch["Sub-Investigation<br/>Dispatch"]
+
+    SubDispatch -->|"Send per lead"| MiniInvest["Mini-Investigate<br/><i>Worker (×N)</i>"]
+
+    MiniInvest --> SARAuthor["SAR Author<br/><i>5Ws narrative generation</i>"]
+    SARAuthor --> ComplianceQA["Compliance QA<br/><i>Quality check</i>"]
+
+    ComplianceQA -->|"Command: data_gathering<br/>Missing evidence"| FanOut
+    ComplianceQA -->|"Command: narrative<br/>Quality issues"| SARAuthor
+    ComplianceQA -->|"Command: human_review<br/>Passed validation"| HumanReview["Human Review<br/><i>interrupt_before pause</i>"]
+    ComplianceQA -->|"Command: human_review<br/>Max loops exceeded<br/>(forced escalation)"| HumanReview
+
+    HumanReview -->|"Resume with<br/>analyst decision"| Finalize["Finalize Case<br/><i>Persist to MongoDB</i>"]
+    Finalize --> EndNode(["END"])
+
+    style Triage fill:#1a73e8,color:#fff
+    style FanOut fill:#7b1fa2,color:#fff
+    style FetchEntity fill:#9c27b0,color:#fff
+    style FetchTxn fill:#9c27b0,color:#fff
+    style FetchNet fill:#9c27b0,color:#fff
+    style FetchWL fill:#9c27b0,color:#fff
+    style CaseAnalyst fill:#00695c,color:#fff
+    style NetAnalyst fill:#f57f17,color:#fff
+    style TempAnalyst fill:#f57f17,color:#fff
+    style TrailFollower fill:#0d47a1,color:#fff
+    style SubDispatch fill:#7b1fa2,color:#fff
+    style MiniInvest fill:#9c27b0,color:#fff
+    style SARAuthor fill:#2e7d32,color:#fff
+    style ComplianceQA fill:#0d47a1,color:#fff
+    style HumanReview fill:#c62828,color:#fff
+    style Finalize fill:#1b5e20,color:#fff
+    style AutoClose fill:#757575,color:#fff
+```
 
 The agentic investigation pipeline shows how a flagged alert is escalated through a LangGraph multi-agent workflow:
 
@@ -135,15 +192,13 @@ Before you begin working with this project, ensure that you have the following p
   - Log in to your MongoDB Atlas account.
   - Create a new project or use an existing one, and then click "create a new database".
   - Choose the M10 tier option.
-  - Configure the cluster settings according to your preferences and then click "finish and close" on the bottom right.
   - Finally, add your IP to the network access list so you can access your cluster remotely.
 
 - **AWS Account with Bedrock Access**: You'll need an AWS account with access to the Bedrock service for AI foundation models used in both fraud detection and entity resolution. Visit the [AWS Console](https://aws.amazon.com/console/) to set up an account and request access to Bedrock.
-- **Docker (Optional)**: For containerized deployment, Docker is required. Install it from the [Docker website](https://www.docker.com/get-started).
 
 ## Quick Start
 
-The fastest way to get ThreatSight 360 up and running:
+The fastest way to get SentinelAI up and running:
 
 ```bash
 # Clone the repository
@@ -211,7 +266,7 @@ mongodb+srv://<username>:<password>@cluster-name.xxxxx.mongodb.net/
 
 ### Cloning the Github Repository
 
-Now it's time to clone the ThreatSight 360 source code from GitHub to your local machine:
+Now it's time to clone the SentinelAI source code from GitHub to your local machine:
 
 1. Open your terminal or command prompt.
 2. Navigate to your preferred directory where you want to store the project using the `cd` command. For example:
@@ -236,7 +291,7 @@ Now it's time to clone the ThreatSight 360 source code from GitHub to your local
 
 ### Set up Vector Search
 
-ThreatSight 360 leverages MongoDB Atlas Vector Search for advanced fraud pattern recognition and entity similarity matching. Follow these steps to enable it:
+SentinelAI leverages MongoDB Atlas Vector Search for advanced fraud pattern recognition and entity similarity matching. Follow these steps to enable it:
 
 #### 1. Fraud Pattern Vector Index
 
@@ -417,7 +472,7 @@ Create a `.env` file with the following configuration settings:
 ```bash
 # MongoDB Connection
 MONGODB_URI=
-DB_NAME=fsi-threatsight360
+DB_NAME=fsi-sentinelai
 
 # AWS Bedrock Credentials
 AWS_ACCESS_KEY_ID=
@@ -473,7 +528,7 @@ Create a `.env` file with the following configuration settings:
 ```bash
 # MongoDB Connection
 MONGODB_URI=
-DB_NAME=fsi-threatsight360
+DB_NAME=fsi-sentinelai
 
 # AWS Bedrock Credentials (for AI features)
 AWS_ACCESS_KEY_ID=
@@ -563,7 +618,7 @@ To populate your database with initial data for testing and demonstration, we pr
 
 ### Transaction Data Generation
 
-The [Transaction Synthetic Data Generation notebook](docs/ThreatSight360%20-%20Transaction%20Synthetic%20Data%20Generation.ipynb) demonstrates how MongoDB's document model enables sophisticated fraud detection through dynamic behavioral profiling:
+The [Transaction Synthetic Data Generation notebook](docs/SentinelAI%20-%20Transaction%20Synthetic%20Data%20Generation.ipynb) demonstrates how MongoDB's document model enables sophisticated fraud detection through dynamic behavioral profiling:
 
 **What it generates:**
 
@@ -602,7 +657,7 @@ The [Transaction Synthetic Data Generation notebook](docs/ThreatSight360%20-%20T
 
 ```bash
 # Run the transaction data generation notebook
-jupyter notebook "docs/ThreatSight360 - Transaction Synthetic Data Generation.ipynb"
+jupyter notebook "docs/SentinelAI - Transaction Synthetic Data Generation.ipynb"
 
 # Or use the backend seeding script
 cd backend
@@ -611,7 +666,7 @@ poetry run python scripts/seed_data.py
 
 ### Entity Data Generation
 
-The [Entity Resolution Synthetic Data Generation notebook](docs/ThreatSight%20360%20-%20Entity%20Resolution%20Synthetic%20Data%20Generation.ipynb) creates comprehensive entity data for AML/KYC compliance testing:
+The [Entity Resolution Synthetic Data Generation notebook](docs/SentinelAI%20360%20-%20Entity%20Resolution%20Synthetic%20Data%20Generation.ipynb) creates comprehensive entity data for AML/KYC compliance testing:
 
 **What it generates:**
 
@@ -639,7 +694,7 @@ The [Entity Resolution Synthetic Data Generation notebook](docs/ThreatSight%2036
 
 ```bash
 # Run the entity data generation notebook
-jupyter notebook "docs/ThreatSight 360 - Entity Resolution Synthetic Data Generation.ipynb"
+jupyter notebook "docs/SentinelAI - Entity Resolution Synthetic Data Generation.ipynb"
 ```
 
 ### Prerequisites for Data Generation
@@ -783,9 +838,9 @@ The Agentic Investigations page provides a full-featured control surface for lau
 > [!Note]
 > Before launching investigations, click the "Seed" button to populate the `typology_library` and `compliance_policies` collections required by the pipeline agents. For full documentation of the agentic pipeline architecture, see [docs/AGENTIC_INVESTIGATION_PIPELINE.md](docs/AGENTIC_INVESTIGATION_PIPELINE.md).
 
-### ThreatSight Copilot
+### SentinelAI Copilot
 
-The ThreatSight Copilot is a global conversational AI assistant available on every page via the floating chat bubble in the bottom-right corner:
+The SentinelAI Copilot is a global conversational AI assistant available on every page via the floating chat bubble in the bottom-right corner:
 
 1. Click the chat bubble icon to open the Copilot panel.
 2. The Copilot is powered by a **ReAct agent** (LangGraph `create_react_agent`) with access to **15 specialized tools** for AML/KYC analysis:
@@ -838,39 +893,6 @@ The Risk Model Management interface allows administrators to configure and deplo
 
 > [!Important]
 > All changes are reflected in real-time across all connected sessions thanks to MongoDB Change Streams.
-
-## Docker Deployment
-
-For containerized deployment in production environments:
-
-1. Ensure Docker and Docker Compose are installed on your system.
-2. Configure environment variables for production in your `.env` files.
-3. Build and run the containers:
-
-   ```bash
-   # Using docker-compose (frontend + fraud backend)
-   cd docker
-   docker-compose up --build -d
-
-   # To also run the AML backend, build and start it separately
-   docker build -f Dockerfile.aml-backend -t threatsight-aml:latest .
-   docker run -d -p 8001:8001 --name threatsight-aml \
-     -v ~/.aws/credentials:/root/.aws/credentials:ro \
-     threatsight-aml:latest
-   ```
-
-4. This will run containers for:
-   - Frontend (port 3000) -- `docker/Dockerfile.frontend`
-   - Fraud Detection Backend (port 8000) -- `Dockerfile.backend`
-   - AML/KYC Backend (port 8001) -- `Dockerfile.aml-backend`
-
-5. Access the application at [http://localhost:3000](http://localhost:3000).
-
-> [!Note]
-> The `docker/docker-compose.yml` currently wires the frontend and fraud backend. The AML backend has a separate Dockerfile (`Dockerfile.aml-backend`) at the repo root. For Kubernetes-style unified pod deployment (all three services as sidecars), see the manifests under `environment/`.
-
-> [!Note]
-> The Docker configuration uses production settings by default. Check the `docker-compose.yml` file and individual Dockerfiles for details.
 
 ## Additional Resources
 

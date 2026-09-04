@@ -347,7 +347,7 @@ async def seed_agent_collections() -> dict:
     stats: dict = {}
 
     # ── typology_library ──────────────────────────────────────────────
-    coll = db["threatsightTypologyLibrary"]
+    coll = db["sentinelaiTypologyLibrary"]
     await coll.drop()
     docs = [{**t, "created_at": now} for t in TYPOLOGIES]
     result = await coll.insert_many(docs)
@@ -355,7 +355,7 @@ async def seed_agent_collections() -> dict:
     stats["typology_library"] = len(result.inserted_ids)
 
     # ── compliance_policies ───────────────────────────────────────────
-    coll = db["threatsightCompliancePolicies"]
+    coll = db["sentinelaiCompliancePolicies"]
     await coll.drop()
     docs = [{**p, "created_at": now} for p in POLICIES]
     result = await coll.insert_many(docs)
@@ -363,7 +363,7 @@ async def seed_agent_collections() -> dict:
     stats["compliance_policies"] = len(result.inserted_ids)
 
     # ── investigations (empty, with indexes) ──────────────────────────
-    coll = db["threatsightInvestigations"]
+    coll = db["sentinelaiInvestigations"]
     existing = await coll.count_documents({})
     if existing == 0:
         await coll.create_index("case_id", unique=True, sparse=True)
@@ -373,7 +373,7 @@ async def seed_agent_collections() -> dict:
     stats["investigations_indexes"] = "created"
 
     # ── alerts (empty, with indexes) ─────────────────────────────────
-    coll = db["threatsightAlerts"]
+    coll = db["sentinelaiAlerts"]
     await coll.create_index("entity_id")
     await coll.create_index("submitted_at")
     await coll.create_index("status")

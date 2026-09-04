@@ -1,4 +1,4 @@
-"""
+﻿"""
 Database Collection Models - MongoDB-specific schemas and indexes
 
 Database models that define collection structures, indexes, and
@@ -29,7 +29,7 @@ class CollectionConfig(BaseModel):
 class EntityCollection(CollectionConfig):
     """Configuration for entities collection"""
     
-    collection_name: str = "threatsightEntities"
+    collection_name: str = "sentinelaiEntities"
     
     # Indexes for optimal performance
     indexes: List[Dict[str, Any]] = Field(default_factory=lambda: [
@@ -208,7 +208,7 @@ class ResolutionHistoryCollection(CollectionConfig):
 class RelationshipCollection(CollectionConfig):
     """Configuration for relationships collection"""
     
-    collection_name: str = "threatsightRelationships"
+    collection_name: str = "sentinelaiRelationships"
     
     indexes: List[Dict[str, Any]] = Field(default_factory=lambda: [
         # Core relationship indexes

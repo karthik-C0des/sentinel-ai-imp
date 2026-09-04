@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 # Environment variables
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 # Customers live in leafy_bank_bian (fraud backend default), but the 26k
-# transactions were seeded into threatsight360. Use a separate env var so
+# transactions were seeded into sentinelai. Use a separate env var so
 # either database can be targeted without touching customer routes.
 DB_NAME = os.getenv("DB_NAME", "leafy_bank_bian")           # customers
-TRANSACTION_DB_NAME = os.getenv("TRANSACTION_DB_NAME", "threatsight360")  # transactions
+TRANSACTION_DB_NAME = os.getenv("TRANSACTION_DB_NAME", "sentinelai")  # transactions
 TRANSACTION_COLLECTION = "transactions"
 
 # vector_embedding is 1536 floats — 92% of each document (~21 KB of 23 KB). No route
@@ -57,7 +57,7 @@ def get_db():
 # Dependency to get fraud detection service
 def get_fraud_detection_service(db: MongoDBAccess = Depends(get_db)):
     # Pass both db names: customers come from leafy_bank_bian, transactions
-    # from threatsight360. FraudDetectionService uses db_name for transactions
+    # from sentinelai. FraudDetectionService uses db_name for transactions
     # and customer_db_name for customer lookups.
     service = FraudDetectionService(
         db_client=db,
@@ -323,6 +323,200 @@ async def evaluate_transaction(
 # is payer/payee/txnId/createdAt/riskAssessment/transactionStatus, which the legacy
 # snake_case TransactionResponse could not express. The one place the wire stays snake is
 # POST /evaluate, whose composed payload the frontend reads.
+
+@router.get("/seed-data")
+async def seed_data(db: MongoDBAccess = Depends(get_db)):
+    import random
+    from datetime import timedelta
+    
+    collection = db.get_collection(db_name=DB_NAME, collection_name=TRANSACTION_COLLECTION)
+    
+    # Generate 500 mock transactions over the last 30 days
+    transactions = []
+    now = datetime.now()
+    
+    types = ["Wire Transfer", "ACH", "Credit Card", "Crypto"]
+    flags_list = ["Unusual Volume", "Velocity High", "Structuring", "Sanctions Match", "Dark Web Info"]
+    
+    for i in range(500):
+        days_ago = random.randint(0, 29)
+        risk_rand = random.random()
+        
+        if risk_rand < 0.05:
+            level = "high"
+            score = random.randint(80, 100)
+            flags = random.sample(flags_list, random.randint(1, 3))
+        elif risk_rand < 0.25:
+            level = "medium"
+            score = random.randint(40, 79)
+            flags = []
+        else:
+            level = "low"
+            score = random.randint(1, 39)
+            flags = []
+            
+        txn = {
+            "txnId": f"TX-{random.randint(100000, 999999)}",
+            "amount": random.randint(50, 10000),
+            "transactionTypeSource": random.choice(types),
+            "createdAt": now - timedelta(days=days_ago, hours=random.randint(0, 23)),
+            "riskAssessment": {
+                "level": level,
+                "score": score,
+                "flags": flags
+            },
+            "payer": {
+                "legalName": f"Mock User {i}"
+            }
+        }
+        transactions.append(txn)
+        
+    collection.insert_many(transactions)
+    
+    return {"message": f"Seeded {len(transactions)} mock transactions successfully"}
+
+@router.get("/stats/overview", response_description="Get dashboard statistics overview")
+async def get_dashboard_stats(
+    db: MongoDBAccess = Depends(get_db),
+    days: int = Query(30, description="Number of days to look back")
+):
+    start_date = datetime.now() - timedelta(days=days)
+    
+    pipeline = [
+        # Match within the date range
+        {"$match": {"createdAt": {"$gte": start_date}}},
+        
+        # Facet to calculate all the different metrics in one pass
+        {"$facet": {
+            "totals": [
+                {"$group": {
+                    "_id": None,
+                    "total_transactions": {"$sum": 1},
+                    "high_risk_count": {"$sum": {"$cond": [{"$eq": ["$riskAssessment.level", "high"]}, 1, 0]}},
+                    "medium_risk_count": {"$sum": {"$cond": [{"$eq": ["$riskAssessment.level", "medium"]}, 1, 0]}},
+                    "low_risk_count": {"$sum": {"$cond": [{"$eq": ["$riskAssessment.level", "low"]}, 1, 0]}},
+                    "flagged_amount_total": {"$sum": {"$cond": [{"$eq": ["$riskAssessment.level", "high"]}, "$amount", 0]}}
+                }}
+            ],
+            "daily_trends": [
+                {"$group": {
+                    "_id": {
+                        "date": {"$dateToString": {"format": "%Y-%m-%d", "date": "$createdAt"}},
+                        "level": "$riskAssessment.level"
+                    },
+                    "count": {"$sum": 1}
+                }},
+                {"$group": {
+                    "_id": "$_id.date",
+                    "levels": {"$push": {"k": {"$ifNull": ["$_id.level", "low"]}, "v": "$count"}}
+                }},
+                {"$sort": {"_id": 1}}
+            ],
+            "top_flags": [
+                {"$unwind": {"path": "$riskAssessment.flags", "preserveNullAndEmptyArrays": False}},
+                {"$group": {
+                    "_id": "$riskAssessment.flags",
+                    "count": {"$sum": 1}
+                }},
+                {"$sort": {"count": -1}},
+                {"$limit": 5}
+            ],
+            "transaction_types": [
+                {"$group": {
+                    "_id": "$transactionTypeSource",
+                    "count": {"$sum": 1}
+                }},
+                {"$sort": {"count": -1}}
+            ],
+            "recent_high_risk": [
+                {"$match": {"riskAssessment.level": "high"}},
+                {"$sort": {"createdAt": -1}},
+                {"$limit": 10},
+                {"$project": {
+                    "txnId": 1,
+                    "payer": {"$ifNull": ["$payer.legalName", "Unknown"]},
+                    "amount": 1,
+                    "riskScore": "$riskAssessment.score",
+                    "flags": "$riskAssessment.flags",
+                    "createdAt": 1
+                }}
+            ]
+        }}
+    ]
+
+    result = list(db.get_collection(
+        db_name=DB_NAME,
+        collection_name=TRANSACTION_COLLECTION
+    ).aggregate(pipeline))
+
+    if not result or not result[0]:
+        return {}
+
+    data = result[0]
+    totals = data.get("totals", [{}])[0] if data.get("totals") else {}
+    
+    # Process daily trends into the expected format
+    daily_counts = []
+    # Create a lookup map for the dates to ensure all days are populated (optional but good practice)
+    trend_dict = {}
+    for day in data.get("daily_trends", []):
+        levels = {item["k"]: item["v"] for item in day.get("levels", [])}
+        try:
+            date_obj = datetime.strptime(day["_id"], "%Y-%m-%d")
+            formatted_date = date_obj.strftime("%b %d")
+        except Exception:
+            formatted_date = day["_id"]
+
+        trend_dict[day["_id"]] = {
+            "date": formatted_date,
+            "raw_date": day["_id"],
+            "low": levels.get("low", 0),
+            "medium": levels.get("medium", 0),
+            "high": levels.get("high", 0)
+        }
+    
+    # Fill missing days with 0s to make the chart continuous
+    for i in range(days):
+        d = (start_date + timedelta(days=i)).strftime("%Y-%m-%d")
+        if d in trend_dict:
+            daily_counts.append(trend_dict[d])
+        else:
+            daily_counts.append({
+                "date": (start_date + timedelta(days=i)).strftime("%b %d"),
+                "low": 0, "medium": 0, "high": 0
+            })
+            
+    # Process top flags
+    top_flags = [{"flag": f["_id"], "count": f["count"]} for f in data.get("top_flags", [])]
+    
+    # Process transaction types
+    transaction_type_breakdown = [{"type": t["_id"] or "Unknown", "count": t["count"]} for t in data.get("transaction_types", [])]
+    
+    # Process recent high risk
+    recent_high_risk = []
+    for t in data.get("recent_high_risk", []):
+        recent_high_risk.append({
+            "txnId": t.get("txnId", ""),
+            "payer": t.get("payer", ""),
+            "amount": t.get("amount", 0),
+            "riskScore": t.get("riskScore", 0),
+            "flags": t.get("flags", []),
+            "createdAt": t.get("createdAt", "")
+        })
+
+    response_data = {
+        "total_transactions": totals.get("total_transactions", 0),
+        "high_risk_count": totals.get("high_risk_count", 0),
+        "medium_risk_count": totals.get("medium_risk_count", 0),
+        "low_risk_count": totals.get("low_risk_count", 0),
+        "flagged_amount_total": totals.get("flagged_amount_total", 0),
+        "daily_counts": daily_counts,
+        "top_flags": top_flags,
+        "transaction_type_breakdown": transaction_type_breakdown,
+        "recent_high_risk": recent_high_risk
+    }
+    
+    return mongo_json(response_data)
 @router.get("/", response_description="List transactions")
 async def list_transactions(
     db: MongoDBAccess = Depends(get_db),
@@ -459,3 +653,73 @@ async def get_transactions_by_flag(
     }), WITHOUT_EMBEDDING).sort("createdAt", -1).skip(skip).limit(limit))
 
     return mongo_json(transactions)
+
+@router.patch("/{transaction_id}/review")
+async def review_transaction(
+    transaction_id: str,
+    review_data: dict = Body(...),
+    db: MongoDBAccess = Depends(get_db),
+    fraud_service: FraudDetectionService = Depends(get_fraud_detection_service)
+):
+    """
+    Analyst marks a HIGH-alert transaction as:
+    - "false_positive"    → clears the alert, reverses risk score
+    - "confirmed_fraud"   → confirms the flag, escalates to SAR
+    - "under_review"      → marks as being investigated
+    """
+    review_status = review_data.get("status")
+    analyst_notes = review_data.get("notes", "")
+    reviewed_by   = review_data.get("reviewed_by", "analyst")
+    reviewed_at = datetime.utcnow()
+    
+    txn_query = scoped({"txnId": {"$eq": transaction_id, "$type": "string"}})
+    txn = db.get_collection(db_name=TRANSACTION_DB_NAME, collection_name=TRANSACTION_COLLECTION).find_one(txn_query)
+    
+    if not txn:
+        from bson import ObjectId
+        try:
+            txn = db.get_collection(db_name=TRANSACTION_DB_NAME, collection_name=TRANSACTION_COLLECTION).find_one({"_id": ObjectId(transaction_id)})
+        except:
+            pass
+            
+    if not txn:
+        raise HTTPException(status_code=404, detail=f"Transaction {transaction_id} not found")
+        
+    db.get_collection(
+        db_name=TRANSACTION_DB_NAME,
+        collection_name=TRANSACTION_COLLECTION
+    ).update_one(
+        {"_id": txn["_id"]},
+        {"$set": {
+            "review_status": review_status,
+            "analyst_notes": analyst_notes,
+            "reviewed_by": reviewed_by,
+            "reviewed_at": reviewed_at
+        }}
+    )
+    
+    if review_status == "false_positive":
+        cleared_flags = txn.get("riskAssessment", {}).get("flags", [])
+        customer_id = txn.get("payer", {}).get("accountId") or txn.get("customer_id")
+        
+        await fraud_service.resolve_false_positive(
+            transaction_id=transaction_id,
+            customer_id=customer_id,
+            cleared_flags=cleared_flags,
+            analyst_notes=analyst_notes
+        )
+    
+    return {"message": f"Transaction marked as {review_status}", "transaction_id": transaction_id}
+
+@router.get("/alerts/pending")
+async def get_pending_alerts(db: MongoDBAccess = Depends(get_db)):
+    """Returns all HIGH-risk transactions not yet reviewed"""
+    alerts = db.get_collection(
+        db_name=TRANSACTION_DB_NAME,
+        collection_name=TRANSACTION_COLLECTION
+    ).find(scoped({
+        "riskAssessment.level": "high",
+        "review_status": {"$in": [None, "pending"]}
+    }), WITHOUT_EMBEDDING).sort("createdAt", -1).limit(100)
+    
+    return mongo_json(list(alerts))

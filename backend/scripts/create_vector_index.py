@@ -9,10 +9,10 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 
 async def run():
     client = AsyncIOMotorClient(MONGODB_URI)
-    db = client['threatsight360']
+    db = client['sentinelai']
     coll = db['transactions']
     
-    print("Checking search indexes on threatsight360.transactions...")
+    print("Checking search indexes on sentinelai.transactions...")
     try:
         search_idxs = []
         async for idx in coll.list_search_indexes():

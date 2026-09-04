@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "your-virtual-env"
 version = "0.1.0"
-description = "FSI ThreatSight360"
+description = "FSI SentinelAI"
 authors = ["Mehar Grewal <mehar.grewal@mongodb.com>"]
 readme = "README.md"
 # Dependency manifest only — there is no importable `your-virtual-env` package, so

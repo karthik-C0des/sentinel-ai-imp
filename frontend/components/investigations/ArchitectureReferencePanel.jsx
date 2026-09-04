@@ -220,7 +220,7 @@ decision: TriageDecision = result["parsed"]   # fully typed`,
       language: 'python',
       code: `# Durable HITL: interrupt_before + MongoDBSaver = crash-safe pause/resume
 graph = builder.compile(
-    checkpointer=MongoDBSaver(mongo_client, db_name="threatsight"),
+    checkpointer=MongoDBSaver(mongo_client, db_name="sentinelai"),
     store=MongoDBStore.from_conn_string(MONGODB_URI),
     interrupt_before=["human_review"],
 )`,

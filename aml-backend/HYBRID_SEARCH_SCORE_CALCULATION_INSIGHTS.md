@@ -178,4 +178,4 @@ if score_details and 'details' in score_details:
 ---
 
 *Document Generated: July 25, 2025*
-*Implementation: ThreatSight 360 AML Backend*
+*Implementation: SentinelAI AML Backend*

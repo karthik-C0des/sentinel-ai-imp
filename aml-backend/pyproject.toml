@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "aml-kyc-backend"
 version = "0.1.0"
-description = "AML KYC Backend for ThreatSight360"
-authors = ["ThreatSight360 Team"]
+description = "AML KYC Backend for SentinelAI"
+authors = ["SentinelAI Team"]
 readme = "README.md"
 package-mode = false
 

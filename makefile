@@ -1,4 +1,4 @@
-# ThreatSight 360 — fsi-aml-fraud-detection
+# SentinelAI — fsi-aml-fraud-detection
 #
 # Three runnables in one repo:
 #   backend/      fraud detection API   :8000
@@ -14,12 +14,12 @@ DB           ?= leafy_bank_bian
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build start stop clean setup install install-backend install-aml install-frontend \
+.PHONY: help setup install install-backend install-aml install-frontend \
         update dev dev-backend dev-frontend dev-fraud dev-aml dev-stop dev-stop-backend \
         dev-stop-frontend dev-logs dev-status dev-kill-all env-check db-check aml-check
 
 help:
-	@echo "ThreatSight 360 — make targets"
+	@echo "SentinelAI — make targets"
 	@echo ""
 	@echo "  setup             Install all deps (poetry x2 + npm)"
 	@echo "  dev               Start all three services with auto-reload"
@@ -35,26 +35,6 @@ help:
 	@echo "  env-check         Verify MONGODB_URI / DB_NAME / NEXT_PUBLIC_API_URL"
 	@echo "  db-check          Verify the migrated data is reachable and scoped"
 	@echo "  aml-check         Verify the 7 renamed AML collections + search indexes"
-	@echo ""
-	@echo "  build/start/stop/clean   docker-compose (see caveat in docker/ section)"
-
-# ─── Docker ──────────────────────────────────────────────────────────────────────
-# NOTE: docker/docker-compose.yml builds with context `.` (= docker/) but references
-# Dockerfile.backend, which lives at the repo ROOT, not in docker/. It also has no
-# aml-backend service. `make build` will fail until that is fixed — use `make dev`.
-
-build:
-	cd docker && docker-compose up --build -d
-
-start:
-	cd docker && docker-compose start
-
-stop:
-	cd docker && docker-compose stop
-
-clean:
-	cd docker && docker-compose down --rmi all -v
-
 # ─── Install ─────────────────────────────────────────────────────────────────────
 
 setup: install
@@ -195,29 +175,29 @@ env-check:
 db-check:
 	@if [ -z "$$MONGODB_URI" ]; then echo "❌ MONGODB_URI not set"; exit 1; fi
 	@echo "🔎 Checking $(DB) (scoped counts must exclude Leafy Bank rows)"
-	@mongosh "$$MONGODB_URI" --quiet --eval 'const d=db.getSiblingDB("$(DB)"), S={sourceSystem:"threatsight360"}; \
+	@mongosh "$$MONGODB_URI" --quiet --eval 'const d=db.getSiblingDB("$(DB)"), S={sourceSystem:"sentinelai"}; \
 	        print("  customers   " + d.customers.countDocuments(S) + " / " + d.customers.countDocuments({}) + "   (want 554 / 558)"); \
 	        print("  transactions " + d.transactions.countDocuments(S) + " / " + d.transactions.countDocuments({}) + " (want 21449 / 21762)"); \
-	        print("  patterns     " + d.threatsightFraudPatterns.countDocuments(S) + "        (want 5)"); \
+	        print("  patterns     " + d.sentinelaiFraudPatterns.countDocuments(S) + "        (want 5)"); \
 	        print("  simulator-written transactions: " + d.transactions.countDocuments({...S, createdBy:"simulator"}));'
 
 # The 7 AML collections loaded AS-IS under renamed names by
 # threat360-migration/populate_aml_asis.py. Unlike the fraud collections these are
-# NOT sourceSystem-scoped — they are wholly ThreatSight's, so a plain count is right.
-# The 5 search indexes on threatsightEntities build asynchronously: until every one
+# NOT sourceSystem-scoped — they are wholly SentinelAI's, so a plain count is right.
+# The 5 search indexes on sentinelaiEntities build asynchronously: until every one
 # reports queryable=true, entity search and hybrid search return empty with NO error.
 aml-check:
 	@if [ -z "$$MONGODB_URI" ]; then echo "❌ MONGODB_URI not set"; exit 1; fi
 	@echo "🔎 Checking the AML collections in $(DB)"
 	@mongosh "$$MONGODB_URI" --quiet --eval 'const d=db.getSiblingDB("$(DB)"); \
-	        const want={threatsightEntities:504, threatsightRelationships:519, fraudEvaluation:12766, \
-	                    threatsightAlerts:0, threatsightInvestigations:0, \
-	                    threatsightTypologyLibrary:12, threatsightCompliancePolicies:6}; \
+	        const want={sentinelaiEntities:504, sentinelaiRelationships:519, fraudEvaluation:12766, \
+	                    sentinelaiAlerts:0, sentinelaiInvestigations:0, \
+	                    sentinelaiTypologyLibrary:12, sentinelaiCompliancePolicies:6}; \
 	        for (const [c,n] of Object.entries(want)) { \
 	          const got=d[c].countDocuments({}); \
 	          const ok = n===0 ? got>0 : got===n; \
 	          print("  " + (ok?"✅":"❌") + " " + c.padEnd(30) + got + (n?"  (want "+n+")":"  (grows at runtime)")); } \
-	        print(""); print("  search/vector indexes on threatsightEntities:"); \
-	        d.threatsightEntities.getSearchIndexes().forEach(i => \
+	        print(""); print("  search/vector indexes on sentinelaiEntities:"); \
+	        d.sentinelaiEntities.getSearchIndexes().forEach(i => \
 	          print("    " + (i.queryable?"✅":"⏳") + " " + i.name.padEnd(32) + i.status));'
 

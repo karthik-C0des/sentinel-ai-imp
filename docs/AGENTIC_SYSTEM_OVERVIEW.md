@@ -1,6 +1,6 @@
-# ThreatSight 360 - Agentic System Overview
+# SentinelAI - Agentic System Overview
 
-This document provides a consolidated view of all AI agent capabilities in ThreatSight 360. For the deep-dive on the investigation pipeline, see [AGENTIC_INVESTIGATION_PIPELINE.md](AGENTIC_INVESTIGATION_PIPELINE.md). For the Copilot architecture, see [COPILOT_ARCHITECTURE.md](COPILOT_ARCHITECTURE.md).
+This document provides a consolidated view of all AI agent capabilities in SentinelAI. For the deep-dive on the investigation pipeline, see [AGENTIC_INVESTIGATION_PIPELINE.md](AGENTIC_INVESTIGATION_PIPELINE.md). For the Copilot architecture, see [COPILOT_ARCHITECTURE.md](COPILOT_ARCHITECTURE.md).
 
 ---
 
@@ -16,7 +16,7 @@ This document provides a consolidated view of all AI agent capabilities in Threa
 
 ## 1. Agentic System Landscape
 
-ThreatSight 360 contains two agentic subsystems that share common infrastructure but serve different user workflows.
+SentinelAI contains two agentic subsystems that share common infrastructure but serve different user workflows.
 
 ```mermaid
 flowchart TB
@@ -38,7 +38,7 @@ flowchart TB
         IPOutput["FinCEN-compliant SAR narrative<br/>+ audit trail"]
     end
 
-    subgraph CopilotAgent["ThreatSight Copilot"]
+    subgraph CopilotAgent["SentinelAI Copilot"]
         direction TB
         CPDesc["Analyst Chat Assistant"]
         CPType["LangGraph create_react_agent"]
@@ -69,7 +69,7 @@ flowchart TB
 
 ### Side-by-Side Comparison
 
-| Aspect | Investigation Pipeline | ThreatSight Copilot |
+| Aspect | Investigation Pipeline | SentinelAI Copilot |
 |--------|----------------------|---------------------|
 | **Architecture** | `StateGraph` (11 nodes) | `create_react_agent` (ReAct loop) |
 | **Trigger** | `POST /agents/investigate` | `POST /agents/chat` |

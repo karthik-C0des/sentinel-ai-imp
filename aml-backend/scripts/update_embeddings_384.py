@@ -13,7 +13,7 @@ from repositories.impl.vector_search_repository import VectorSearchRepository
 async def main():
     load_dotenv(dotenv_path=".env")
     uri = os.getenv('MONGODB_URI')
-    db_name = os.getenv('DB_NAME', 'threatsight360')
+    db_name = os.getenv('DB_NAME', 'sentinelai')
     
     print(f"Connecting to MongoDB database: {db_name}...")
     mongo_repo = MongoDBRepository(uri, db_name)
@@ -22,7 +22,7 @@ async def main():
     # Use motor directly for iteration
     client = AsyncIOMotorClient(uri)
     db = client[db_name]
-    collection = db['threatsightEntities']
+    collection = db['sentinelaiEntities']
     
     total_docs = await collection.count_documents({})
     print(f"Found {total_docs} entities. Starting re-embedding process...")

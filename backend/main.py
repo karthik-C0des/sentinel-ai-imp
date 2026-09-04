@@ -126,5 +126,5 @@ app.include_router(bian_router)
 #     host = os.getenv("HOST", "0.0.0.0")
 #     port = int(os.getenv("PORT", "8000"))
     
-#     logger.info(f"Starting ThreatSight 360 API on {host}:{port}")
+#     logger.info(f"Starting SentinelAI API on {host}:{port}")
 #     uvicorn.run("main:app", host=host, port=port, reload=True, log_level="debug")

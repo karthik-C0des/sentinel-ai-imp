@@ -1,4 +1,4 @@
-# ThreatSight 360 - Fraud Detection Backend
+# SentinelAI - Fraud Detection Backend
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
@@ -7,7 +7,7 @@
 
 **Real-time Fraud Detection and Risk Model Management Service**
 
-The fraud detection backend (port 8000) provides real-time transaction risk assessment, dynamic risk model management, and vector-based fraud pattern recognition. It is one of two backend services in the ThreatSight 360 dual-backend architecture.
+The fraud detection backend (port 8000) provides real-time transaction risk assessment, dynamic risk model management, and vector-based fraud pattern recognition. It is one of two backend services in the SentinelAI dual-backend architecture.
 
 ---
 
@@ -217,7 +217,7 @@ For detailed documentation, see [VECTOR_SEARCH_IMPLEMENTATION.md](VECTOR_SEARCH_
 ```bash
 # MongoDB Connection
 MONGODB_URI=
-DB_NAME=fsi-threatsight360
+DB_NAME=fsi-sentinelai
 
 # AWS Bedrock
 AWS_ACCESS_KEY_ID=

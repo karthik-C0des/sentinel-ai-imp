@@ -8,12 +8,12 @@ load_dotenv()
 
 async def update_statuses():
     mongo_uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-    db_name = os.getenv("DB_NAME", "threatsight360")
+    db_name = os.getenv("DB_NAME", "sentinelai")
     print(f"Connecting to MongoDB: {mongo_uri.split('@')[-1]} (DB: {db_name})")
     
     client = AsyncIOMotorClient(mongo_uri)
     db = client[db_name]
-    collection = db["threatsightEntities"]
+    collection = db["sentinelaiEntities"]
     
     # Fetch all entities
     cursor = collection.find({})

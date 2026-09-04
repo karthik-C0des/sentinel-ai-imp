@@ -9,7 +9,7 @@ load_dotenv()
 async def create_indexes():
     c = AsyncIOMotorClient(os.getenv('MONGODB_URI'))
     db = c[os.getenv('DB_NAME')]
-    coll = db['threatsightEntities']
+    coll = db['sentinelaiEntities']
     
     print("Creating entity_resolution_search...")
     try:

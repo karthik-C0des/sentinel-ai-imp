@@ -195,7 +195,7 @@ async def launch_investigation(request: Dict[str, Any]):
     # Fetch entity context to enrich the alert so Triage Agent can make an informed decision
     try:
         client = get_mongo_client()
-        entity = client[DB_NAME]["threatsightEntities"].find_one({"entityId": entity_id})
+        entity = client[DB_NAME]["sentinelaiEntities"].find_one({"entityId": entity_id})
         if entity:
             alert_data["riskAssessment"] = entity.get("riskAssessment", {})
             alert_data["watchlistFlags"] = entity.get("watchlistFlags", {})
@@ -215,7 +215,7 @@ async def launch_investigation(request: Dict[str, Any]):
     }
     try:
         client = get_mongo_client()
-        result = client[DB_NAME]["threatsightAlerts"].insert_one(alert_doc)
+        result = client[DB_NAME]["sentinelaiAlerts"].insert_one(alert_doc)
         alert_id = str(result.inserted_id)
     except Exception as exc:
         logger.warning("Failed to insert alert doc: %s", exc)
@@ -267,7 +267,7 @@ async def launch_investigation(request: Dict[str, Any]):
                 try:
                     new_status = "awaiting_review" if is_interrupted else "completed"
                     await asyncio.to_thread(
-                        client[DB_NAME]["threatsightAlerts"].update_one,
+                        client[DB_NAME]["sentinelaiAlerts"].update_one,
                         {"_id": ObjectId(alert_id)},
                         {"$set": {"status": new_status, "completed_at": datetime.now(timezone.utc)}},
                     )
@@ -397,7 +397,7 @@ async def list_investigations(
 ):
     """List all investigations, optionally filtered by status."""
     client = get_mongo_client()
-    coll = client[DB_NAME]["threatsightInvestigations"]
+    coll = client[DB_NAME]["sentinelaiInvestigations"]
 
     query: dict = {}
     if status:
@@ -461,7 +461,7 @@ async def investigation_analytics():
         }},
     ]
 
-    results = list(db["threatsightInvestigations"].aggregate(pipeline))
+    results = list(db["sentinelaiInvestigations"].aggregate(pipeline))
     facets = results[0] if results else {}
 
     risk = facets.get("risk_stats", [{}])[0] if facets.get("risk_stats") else {}
@@ -497,7 +497,7 @@ async def search_investigations(q: str = "", limit: int = 20):
 
     query_regex = {"$regex": q.strip(), "$options": "i"}
 
-    results = list(db["threatsightInvestigations"].find(
+    results = list(db["sentinelaiInvestigations"].find(
         {"$or": [
             {"case_id": query_regex},
             {"entity_id": query_regex},
@@ -527,7 +527,7 @@ async def search_investigations(q: str = "", limit: int = 20):
 async def get_investigation(case_id: str):
     """Get a single investigation by case_id."""
     client = get_mongo_client()
-    doc = client[DB_NAME]["threatsightInvestigations"].find_one(
+    doc = client[DB_NAME]["sentinelaiInvestigations"].find_one(
         {"case_id": case_id}, {"_id": 0}
     )
     if not doc:
@@ -604,7 +604,7 @@ async def list_investigable_entities():
         {"$sort": {"scenarioKey": 1, "entityId": 1}},
     ]
 
-    entities = list(db["threatsightEntities"].aggregate(pipeline))
+    entities = list(db["sentinelaiEntities"].aggregate(pipeline))
 
     grouped: Dict[str, list] = {}
     for ent in entities:
@@ -626,7 +626,7 @@ async def list_typologies():
     """Return all AML typologies from the typology_library collection."""
     client = get_mongo_client()
     docs = list(
-        client[DB_NAME]["threatsightTypologyLibrary"]
+        client[DB_NAME]["sentinelaiTypologyLibrary"]
         .find({}, {"_id": 0})
         .sort("name", 1)
     )
@@ -668,7 +668,7 @@ async def investigation_change_stream(websocket: WebSocket):
         pipeline = [
             {"$match": {
                 "operationType": {"$in": ["insert", "update", "replace"]},
-                "ns.coll": "threatsightInvestigations",
+                "ns.coll": "sentinelaiInvestigations",
             }},
         ]
 
@@ -734,7 +734,7 @@ async def alerts_change_stream(websocket: WebSocket):
     try:
         # Send recent alerts as initial state
         recent = []
-        cursor = db["threatsightAlerts"].find().sort("submitted_at", -1).limit(20)
+        cursor = db["sentinelaiAlerts"].find().sort("submitted_at", -1).limit(20)
         async for doc in cursor:
             recent.append(_make_json_safe(doc))
         await websocket.send_json({"type": "initial", "alerts": recent})
@@ -743,7 +743,7 @@ async def alerts_change_stream(websocket: WebSocket):
         pipeline = [
             {"$match": {
                 "operationType": {"$in": ["insert", "update", "replace"]},
-                "ns.coll": {"$in": ["threatsightAlerts", "threatsightInvestigations"]},
+                "ns.coll": {"$in": ["sentinelaiAlerts", "sentinelaiInvestigations"]},
             }},
         ]
 
@@ -758,7 +758,7 @@ async def alerts_change_stream(websocket: WebSocket):
                 safe_doc = _make_json_safe(doc)
                 coll = change.get("ns", {}).get("coll", "")
 
-                if coll == "threatsightAlerts":
+                if coll == "sentinelaiAlerts":
                     await websocket.send_json({
                         "type": "alert_change",
                         "operationType": change["operationType"],
@@ -771,7 +771,7 @@ async def alerts_change_stream(websocket: WebSocket):
                         },
                         "timestamp": datetime.now(timezone.utc).isoformat(),
                     })
-                elif coll == "threatsightInvestigations":
+                elif coll == "sentinelaiInvestigations":
                     await websocket.send_json({
                         "type": "investigation_change",
                         "operationType": change["operationType"],
@@ -803,3 +803,62 @@ async def agent_health():
         "service": "agent_investigation_pipeline",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
+
+# ── goAML XML Export (FIU-IND STR filing) ────────────────────────────
+
+@router.get(
+    "/investigations/{case_id}/goaml",
+    summary="Download FIU-IND goAML XML for STR filing",
+    response_description="goAML 4.0 XML document ready for FIU-IND portal upload",
+    tags=["agent-investigation", "compliance"],
+)
+async def download_goaml_xml(case_id: str):
+    """Generate and download a goAML 4.0 compliant XML document for a
+    finalized investigation. The file can be uploaded directly to the
+    FIU-IND goAML portal for STR filing.
+
+    Only investigations with status 'filed' or 'closed' are eligible.
+    """
+    from fastapi.responses import Response
+    from services.agents.goaml_serializer import build_goaml_xml
+
+    client = get_mongo_client()
+    db = client[DB_NAME]
+
+    # Normalise the incoming ID (could be case_id string or MongoDB _id)
+    case_doc = db["sentinelaiInvestigations"].find_one(
+        {"case_id": case_id}, {"_id": 0}
+    )
+    if not case_doc:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Investigation '{case_id}' not found.",
+        )
+
+    status = case_doc.get("investigation_status", "")
+    if status == "closed_false_positive":
+        raise HTTPException(
+            status_code=400,
+            detail="This investigation was closed as a false positive and is not eligible for STR filing.",
+        )
+
+    try:
+        xml_bytes = build_goaml_xml(case_doc)
+    except Exception as exc:
+        logger.exception("goAML XML generation failed for case %s", case_id)
+        raise HTTPException(
+            status_code=500,
+            detail=f"XML generation failed: {str(exc)}",
+        )
+
+    filename = f"STR_{case_id}_{datetime.now(timezone.utc).strftime('%Y%m%d')}.xml"
+    return Response(
+        content=xml_bytes,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-FIU-Case-ID": case_id,
+            "X-Investigation-Status": status,
+        },
+    )

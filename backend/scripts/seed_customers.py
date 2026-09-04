@@ -1,6 +1,6 @@
 """
 Seed script — inserts 20 demo customers into `leafy_bank_bian.customers`
-stamped with sourceSystem=threatsight360 so the fraud backend's scoped()
+stamped with sourceSystem=sentinelai so the fraud backend's scoped()
 filter finds them and the Transaction Simulator dropdown populates.
 
 Usage (from the repo root):
@@ -17,10 +17,10 @@ load_dotenv()
 
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 # The fraud backend's customer.py hardcodes leafy_bank_bian as its default DB,
-# regardless of DB_NAME in .env (which points to threatsight360 for the AML backend).
+# regardless of DB_NAME in .env (which points to sentinelai for the AML backend).
 DB_NAME     = "leafy_bank_bian"
 COLLECTION  = "customers"
-SOURCE      = "threatsight360"
+SOURCE      = "sentinelai"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 def now():
@@ -167,7 +167,7 @@ async def seed():
 
     # Quick verification
     count = await col.count_documents({"sourceSystem": SOURCE})
-    print(f"  Total threatsight360 customers now: {count}")
+    print(f"  Total sentinelai customers now: {count}")
     client.close()
     print("\nDone! Refresh the Transaction Simulator - the Entity dropdown should now populate.")
 

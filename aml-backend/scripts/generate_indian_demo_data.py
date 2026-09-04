@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Connections
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-AML_DB_NAME = os.getenv("DB_NAME", "threatsight360")
+AML_DB_NAME = os.getenv("DB_NAME", "sentinelai")
 FRAUD_DB_NAME = "leafy_bank_bian"
 
 # Indian Master Data
@@ -247,8 +247,8 @@ def generate_transactions(customers_docs, total_count=10000):
         # Compliant to the expected transactionsv2 format
         tx = {
             "transactionId": tx_id,
-            "entityId": src["entityId"],
-            "counterpartyEntityId": tgt["entityId"],
+            "fromEntityId": src["entityId"],
+            "toEntityId": tgt["entityId"],
             "amount": amt,
             "currency": "INR",
             "type": "upi_transfer",
@@ -261,6 +261,28 @@ def generate_transactions(customers_docs, total_count=10000):
         }
         txns.append(tx)
         
+    logger.info("Synthesizing Structuring transactions for Demo Entities...")
+    demo_entities = [c for c in customers_docs if c["entityId"].startswith("ENT-DEMO-")]
+    for demo in demo_entities:
+        for j in range(15):
+            amt = round(random.uniform(48200.0, 49950.0), 2)
+            tx_id = f"TXN-DEMO-STRUC-{demo['entityId']}-{j}"
+            tx = {
+                "transactionId": tx_id,
+                "fromEntityId": demo["entityId"],
+                "toEntityId": f"ENT-DEMO-CP-{j}",
+                "amount": amt,
+                "currency": "INR",
+                "type": "upi_transfer",
+                "direction": "outgoing",
+                "timestamp": rand_date(45).isoformat(),
+                "description": "UPI Settlement",
+                "flagged": True,
+                "createdAt": now().isoformat(),
+                "location": {"type": "Point", "coordinates": [72.8311, 21.1702]}
+            }
+            txns.append(tx)
+        
     logger.info("Synthesizing PMLA Section 12 CTR Cash Transactions...")
     for i in range(1200, 2200):
         src = entity_map.get("ENT-IN-2004", customers_docs[0])
@@ -269,8 +291,8 @@ def generate_transactions(customers_docs, total_count=10000):
         
         tx = {
             "transactionId": tx_id,
-            "entityId": src["entityId"],
-            "counterpartyEntityId": "ENT-IN-BANK",
+            "toEntityId": src["entityId"],
+            "fromEntityId": "ENT-IN-BANK",
             "amount": amt,
             "currency": "INR",
             "type": "cash_deposit",
@@ -290,15 +312,16 @@ def generate_transactions(customers_docs, total_count=10000):
         rail = random.choice(["upi_transfer", "internal_transfer", "wire_transfer"])
         amt = round(random.uniform(35.0, 2800.0), 2)
         tx_id = f"TXN-IN-{100000 + i}"
+        direction = random.choice(["incoming", "outgoing"])
         
         tx = {
             "transactionId": tx_id,
-            "entityId": src["entityId"],
-            "counterpartyEntityId": tgt["entityId"],
+            "fromEntityId": src["entityId"] if direction == "outgoing" else tgt["entityId"],
+            "toEntityId": tgt["entityId"] if direction == "outgoing" else src["entityId"],
             "amount": amt,
             "currency": "INR",
             "type": rail,
-            "direction": random.choice(["incoming", "outgoing"]),
+            "direction": direction,
             "timestamp": rand_date(180).isoformat(),
             "description": "Domestic transaction",
             "flagged": False,
@@ -309,12 +332,21 @@ def generate_transactions(customers_docs, total_count=10000):
     return txns
 
 def generate_relationships():
-    # Compliant to threatsightRelationships format (source.entityId)
-    return [
+    # Compliant to sentinelaiRelationships format (source.entityId)
+    rels = [
         {"relationshipId": "REL-IN-401", "source": {"entityId": "ENT-IN-2004", "entityType": "individual"}, "target": {"entityId": "ENT-IN-2049", "entityType": "organization"}, "type": "owner_of", "direction": "directed", "strength": 0.98, "active": True},
         {"relationshipId": "REL-IN-402", "source": {"entityId": "ENT-IN-2049", "entityType": "organization"}, "target": {"entityId": "ENT-IN-2047", "entityType": "organization"}, "type": "subsidiary_of", "direction": "directed", "strength": 0.96, "active": True},
         {"relationshipId": "REL-IN-403", "source": {"entityId": "ENT-IN-2004", "entityType": "individual"}, "target": {"entityId": "ENT-IN-2060", "entityType": "organization"}, "type": "director_of", "direction": "directed", "strength": 0.95, "active": True},
     ]
+    
+    # Add relationships for Demo entities
+    for i in range(15):
+        demo_id = f"ENT-DEMO-{i:03d}"
+        rels.extend([
+            {"relationshipId": f"REL-DEMO-{demo_id}-1", "source": {"entityId": demo_id, "entityType": "organization"}, "target": {"entityId": f"ENT-DEMO-CP-1-{demo_id}", "entityType": "organization"}, "type": "subsidiary_of", "direction": "directed", "strength": 0.96, "active": True},
+            {"relationshipId": f"REL-DEMO-{demo_id}-2", "source": {"entityId": demo_id, "entityType": "organization"}, "target": {"entityId": f"ENT-DEMO-CP-2-{demo_id}", "entityType": "organization"}, "type": "proxy_relationship_suspected", "direction": "directed", "strength": 0.85, "active": True},
+        ])
+    return rels
 
 def normalize_vector(v):
     norm = math.sqrt(sum(x*x for x in v))
@@ -339,8 +371,8 @@ async def generate():
 
     logger.info("Generating Indian Entity profiles...")
     entities = generate_customer_profiles()
-    await aml_db["threatsightEntities"].drop()
-    await aml_db["threatsightEntities"].insert_many(entities)
+    await aml_db["sentinelaiEntities"].drop()
+    await aml_db["sentinelaiEntities"].insert_many(entities)
     print(f"  entities: {len(entities)}")
 
     logger.info("Generating AML transactions...")
@@ -350,9 +382,9 @@ async def generate():
     print(f"  transactionsv2: {len(txns)}")
 
     logger.info("Generating multi-hop relationships...")
-    await aml_db["threatsightRelationships"].drop()
+    await aml_db["sentinelaiRelationships"].drop()
     rels = generate_relationships()
-    await aml_db["threatsightRelationships"].insert_many(rels)
+    await aml_db["sentinelaiRelationships"].insert_many(rels)
     print(f"  relationships: {len(rels)}")
 
     logger.info("Generating fraud patterns (384-dim embeddings)...")
@@ -362,11 +394,11 @@ async def generate():
     print(f"  fraud_patterns: {len(patterns)}")
 
     logger.info("Setting up Indexes...")
-    await aml_db["threatsightEntities"].create_index("entityId", unique=True)
+    await aml_db["sentinelaiEntities"].create_index("entityId", unique=True)
     await aml_db["transactionsv2"].create_index("transactionId", unique=True)
     await aml_db["transactionsv2"].create_index("entityId")
-    await aml_db["threatsightRelationships"].create_index("relationshipId", unique=True)
-    await aml_db["threatsightRelationships"].create_index("source.entityId")
+    await aml_db["sentinelaiRelationships"].create_index("relationshipId", unique=True)
+    await aml_db["sentinelaiRelationships"].create_index("source.entityId")
 
     aml_client.close()
     fraud_client.close()

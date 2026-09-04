@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const UserContext = createContext(null);
 
-const STORAGE_KEY = 'threatsight360_user_role';
+const STORAGE_KEY = 'sentinelai_user_role';
 
 // Everyone lands as Risk Analyst — no role picker on first visit. Switching
 // happens from the UserMenu dropdown.

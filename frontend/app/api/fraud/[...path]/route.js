@@ -11,7 +11,8 @@ const FRAUD_BACKEND_URL = process.env.FRAUD_BACKEND_URL || 'http://localhost:800
 
 export async function GET(request, { params }) {
   try {
-    const { path } = params;
+    const resolvedParams = await params;
+    const { path } = resolvedParams;
     const pathString = Array.isArray(path) ? path.join('/') : path;
 
     // Get search params from request
@@ -45,7 +46,8 @@ export async function GET(request, { params }) {
 
 export async function POST(request, { params }) {
   try {
-    const { path } = params;
+    const resolvedParams = await params;
+    const { path } = resolvedParams;
     const pathString = Array.isArray(path) ? path.join('/') : path;
     const url = `${FRAUD_BACKEND_URL}/${pathString}`;
 
@@ -97,7 +99,8 @@ export async function POST(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    const { path } = params;
+    const resolvedParams = await params;
+    const { path } = resolvedParams;
     const pathString = Array.isArray(path) ? path.join('/') : path;
     const url = `${FRAUD_BACKEND_URL}/${pathString}`;
 
@@ -149,7 +152,8 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const { path } = params;
+    const resolvedParams = await params;
+    const { path } = resolvedParams;
     const pathString = Array.isArray(path) ? path.join('/') : path;
     const url = `${FRAUD_BACKEND_URL}/${pathString}`;
 

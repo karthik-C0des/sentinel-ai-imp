@@ -8,14 +8,14 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { H1, Overline, Body } from '@leafygreen-ui/typography';
 import Icon from '@leafygreen-ui/icon';
 import IconButton from '@leafygreen-ui/icon-button';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/contexts/UserContext';
-import UserMenu from '@/components/UserMenu/UserMenu';
 import ChatBubble from '@/components/chat/ChatBubble';
 import LeafyGreenProvider from '@leafygreen-ui/leafygreen-provider';
 
 const ROUTE_ROLES = [
+  { href: '/dashboard', roles: ['risk_analyst'] },
   { href: '/investigations', roles: ['risk_analyst'] },
   { href: '/entities', roles: ['risk_analyst'] },
   { href: '/entity-resolution', roles: ['risk_analyst'] },
@@ -35,12 +35,18 @@ if (typeof window !== 'undefined') {
     if (msg.includes('React does not recognize the `cellIndex` prop on a DOM element')) {
       return;
     }
+    // Suppress React 19 element.ref deprecation warning from LeafyGreen UI (library noise, not our code)
+    if (msg.includes('Accessing element.ref was removed in React 19')) {
+      return;
+    }
     originalError(...args);
   };
 }
 
 export default function ClientLayout({ children, bianModelUrl }) {
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isProfileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
   const { role } = useUser();
   const pathname = usePathname();
   const router = useRouter();
@@ -78,6 +84,16 @@ export default function ClientLayout({ children, bianModelUrl }) {
     }
   }, [role, pathname, router]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <LeafyGreenProvider>
       <header
@@ -100,10 +116,9 @@ export default function ClientLayout({ children, bianModelUrl }) {
           style={{
             maxWidth: '1600px',
             margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'space-between',
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
             alignItems: 'center',
-            flexWrap: isMenuOpen ? 'wrap' : 'nowrap',
             padding: `${spacing[3]}px ${spacing[3]}px`,
           }}
         >
@@ -112,7 +127,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
             <img src="/sentinel-name.png" alt="Sentinel AI Name" style={{ height: '48px', objectFit: 'contain' }} />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: '120px' }}>
             <IconButton
               aria-label="Toggle Menu"
               onClick={() => setMenuOpen(!isMenuOpen)}
@@ -139,7 +154,7 @@ export default function ClientLayout({ children, bianModelUrl }) {
                 }}
               >
                 {[
-                  { href: '/', icon: 'Home', label: 'Home', roles: null },
+                  { href: '/dashboard', icon: 'Charts', label: 'Dashboard', roles: ['risk_analyst'] },
                   { href: '/investigations', icon: 'ActivityFeed', label: 'Agentic Investigation', roles: ['risk_analyst'] },
                   { href: '/entities', icon: 'Person', label: 'Entity Management', roles: ['risk_analyst'] },
                   { href: '/entity-resolution/enhanced', icon: 'Relationship', label: 'Entity Resolution', roles: ['risk_analyst'] },
@@ -158,35 +173,68 @@ export default function ClientLayout({ children, bianModelUrl }) {
                     </Link>
                   </li>
                 ))}
-
-                {/* The BIAN Data Model Explorer is a separately deployed app,
-                    so this is an external anchor, not a route. `?demo=` picks
-                    the lens that highlights this demo's collections. */}
-                <li>
-                  <a
-                    href={`${bianModelUrl}/bian-data-model?demo=threatsight`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={navLinkStyle('/bian-data-model')}
-                    onMouseEnter={(e) => handleLinkHover(e, '/bian-data-model', true)}
-                    onMouseLeave={(e) => handleLinkHover(e, '/bian-data-model', false)}
-                    title="BIAN Data Model"
-                  >
-                    <Icon glyph="Read" fill={isActive('/bian-data-model') ? '#12B8B0' : '#0f2942'} size={16} />
-                    <Body style={{ fontFamily: "'Euclid Circular A', sans-serif", color: 'inherit' }}>Data Model</Body>
-                  </a>
-                </li>
               </ul>
             </nav>
+          </div>
 
-            {/* Persona menu — also carries the Risk Analyst / Risk Manager
-                role switch in its dropdown. */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: spacing[4],
-            }}>
-              <UserMenu />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '24px' }}>
+            <div 
+              ref={profileRef}
+              style={{
+                position: 'relative',
+              }}
+            >
+              <button
+                onClick={() => setProfileOpen(!isProfileOpen)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '4px',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background-color 0.2s',
+                  backgroundColor: isProfileOpen ? 'rgba(0,0,0,0.05)' : 'transparent',
+                }}
+                title="Profile"
+              >
+                <img
+                  src="/users/67a1000000000000000000002.png"
+                  alt="Ana"
+                  style={{ width: '32px', height: '32px', objectFit: 'contain', borderRadius: '50%' }}
+                />
+              </button>
+
+              {isProfileOpen && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '0',
+                  marginTop: '8px',
+                  background: 'white',
+                  border: '1px solid #e8edeb',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  minWidth: '200px',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  zIndex: 200,
+                }}>
+                  <img
+                    src="/users/67a1000000000000000000002.png"
+                    alt="Ana"
+                    style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '50%' }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Body style={{ fontSize: '15px', fontWeight: 600, lineHeight: '1.2', color: '#0f2942' }}>Ana</Body>
+                    <div style={{ fontSize: '13px', color: palette.gray.dark1, marginTop: '2px' }}>Risk Analyst</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
