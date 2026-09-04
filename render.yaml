@@ -1,0 +1,30 @@
+services:
+  # Fraud API Backend
+  - type: web
+    name: sentinel-fraud-api
+    env: python
+    rootDir: backend
+    buildCommand: "pip install poetry && poetry config virtualenvs.create false && poetry install --only main --no-interaction --no-ansi"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: DB_NAME
+        value: "sentinelai"
+
+  # AML API Backend
+  - type: web
+    name: sentinel-aml-api
+    env: python
+    rootDir: aml-backend
+    buildCommand: "pip install poetry && poetry config virtualenvs.create false && poetry install --only main --no-interaction --no-ansi"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: DB_NAME
+        value: "sentinelai"
